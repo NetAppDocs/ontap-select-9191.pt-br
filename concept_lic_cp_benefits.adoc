@@ -1,0 +1,40 @@
+---
+sidebar: sidebar 
+permalink: concept_lic_cp_benefits.html 
+keywords: license, licensing, Capacity Pools, benefits 
+summary: Existem diversas vantagens em usar o modelo de licenciamento Capacity Pools em vez do modelo de licenciamento Capacity Tiers. 
+---
+= Resumo dos benefícios do licenciamento de Capacity Pools do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Existem diversas vantagens em usar o modelo de licenciamento Capacity Pools em vez do modelo de licenciamento Capacity Tiers.
+
+
+
+[[more-efficient-use-of-storage-capacity]]
+== Utilização mais eficiente da capacidade de storage
+
+Ao usar o licenciamento por Capacity Tiers, você aloca uma capacidade de storage fixa para cada nó. Qualquer espaço não utilizado não pode ser compartilhado com os outros nós e é efetivamente desperdiçado. Com o licenciamento por Capacity Pools, cada nó consome apenas a capacidade de que precisa, com base no tamanho dos agregados de dados.
+
+A capacidade está ancorada em um pool central onde pode ser compartilhada entre vários nós da sua organização.
+
+
+
+[[significantly-reduced-administrative-overhead-resulting-in-lower-cost]]
+== Redução significativa das despesas administrativas, resultando em menor custo
+
+Se você utiliza licenças por Capacity Tier, precisa obter e instalar uma licença para cada nó. Ao utilizar Capacity Pools, há uma licença para cada pool compartilhado. Isso pode reduzir drasticamente a sobrecarga administrativa e resultar em custos menores.
+
+
+
+[[improved-usage-metrics]]
+== Métricas de uso aprimoradas
+
+A interface de usuário web Deploy fornece informações de uso aprimoradas para os Capacity Pools. Você pode determinar rapidamente quanto storage está sendo usado e quanto está disponível em um Capacity Pool, quais nós estão usando storage de um pool e de quais pools um cluster está alocando capacidade.

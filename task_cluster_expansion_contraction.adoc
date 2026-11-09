@@ -1,0 +1,155 @@
+---
+sidebar: sidebar 
+permalink: task_cluster_expansion_contraction.html 
+keywords: cluster, expand, expansion, contract, contraction, six, eight, node deployment workflow, workflow, deployment steps 
+summary: A partir do ONTAP Select 9.15.1, você pode aumentar ou diminuir o tamanho de um cluster existente. 
+---
+= Expanda ou reduza um cluster ONTAP Select em hosts ESXi ou KVM
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Aumente ou diminua o tamanho do cluster de um cluster ONTAP Select existente para hosts de hipervisor ESXi e KVM. Para ambos os tipos de host, você pode aumentar e diminuir o tamanho do cluster em incrementos entre quatro e doze nós.
+
+As seguintes expansões e contrações de cluster não são suportadas para hosts ESXi e KVM:
+
+* Expansões de clusters de um ou dois nós para clusters de seis, oito, dez ou doze nós.
+* Contrações de clusters de seis, oito, dez ou doze nós para clusters de um ou dois nós.
+
+
+[NOTE]
+====
+Para alterar o número de nós em um cluster para um tamanho que não seja suportado pela expansão ou contração do cluster, você precisa executar as seguintes tarefas:
+
+. Implante um novo cluster de vários nós usando o link:task_cli_deploy_cluster.html["CLI"] ou o link:task_deploy_cluster.html["interface web"] fornecido com a ferramenta de administração ONTAP Select Deploy.
+. Se aplicável, migre os dados para o novo cluster usando link:https://docs.netapp.com/us-en/ontap/data-protection/snapmirror-disaster-recovery-concept.html["SnapMirror replicação"^].
+
+
+====
+Você inicia os procedimentos de expansão e contração do cluster a partir do ONTAP Select Deploy usando a CLI, a API ou a interface web.
+
+
+
+[[hardware-and-storage-considerations]]
+== Considerações sobre hardware e armazenamento
+
+O recurso de expansão e contração de clusters é compatível com os seguintes hosts de hipervisor KVM e ESXi.
+
+[role="tabbed-block"]
+====
+.ESXi
+--
+A partir do ONTAP Select 9.15.1, a expansão e a contração de clusters são suportadas em hosts com hipervisor ESXi.
+
+A expansão e contração de clusters são suportadas para as seguintes versões do hipervisor ESXi:
+
+* ESXi 9.0
+* ESXi 8.0 U3
+* ESXi 8.0 U2
+* ESXi 8.0 U1
+* ESXi 8.0 GA
+
+
+--
+.KVM
+--
+A partir do ONTAP Select 9.17.1, a expansão e a contração de clusters são suportadas em hosts de hipervisor KVM.
+
+A expansão e contração de clusters são suportadas para as seguintes versões do hipervisor KVM:
+
+* Red Hat Enterprise Linux (RHEL) 64-bit 10.1, 10.0, 9.7, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.8, 8.7 e 8.6
+* Rocky Linux 10.1, 10.0, 9.7, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.9, 8.8, 8.7 e 8.6
+
+
+--
+====
+
+
+[[expand-the-cluster]]
+== Expandir o cluster
+
+Utilize o recurso de expansão de cluster para aumentar o tamanho de um cluster ONTAP Select existente.
+
+Você pode aumentar o tamanho de um cluster existente em um host ESXi ou KVM nos seguintes incrementos:
+
+* De quatro nós para seis, oito, dez ou doze nós
+* De seis nós para oito, dez ou doze nós
+* De oito nós para dez ou doze nós
+* De dez a doze nós
+
+
+.Sobre esta tarefa
+Em preparação para a expansão do cluster, novos hosts ESXi e KVM são adicionados ao inventário e os detalhes dos novos nós são atribuídos. Antes de iniciar o processo de expansão do cluster, uma verificação prévia da rede verifica a rede interna selecionada.
+
+.Antes de começar
+* Ao implantar um cluster com vários nós, você deve estar familiarizado com o verificador de conectividade de rede. Você pode executar o verificador de conectividade de rede usando o link:task_adm_connectivity.html["interface web"] ou o link:task_cli_connectivity.html["CLI"].
+* Verifique se você possui os detalhes da licença para os novos nós.
+
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Cluster* na parte superior da página e selecione o cluster desejado na lista.
+. Na página de detalhes do cluster, selecione o ícone de engrenagem à direita da página e selecione *Expand Cluster*.
+. Navegue até a seção *par de HA 4*.
+. Selecione os seguintes detalhes de configuração do par de HA para o quarto par de HA:
++
+** Tipo de instância
+** Nomes dos nós
+** Hosts de hipervisor associados
+** Endereços IP dos nós
+** Licenças
+** Configuração de rede
+** Configuração de armazenamento (tipo de RAID e pools de armazenamento)
+
+
+. Selecione *Salvar par de HA* para salvar os detalhes da configuração.
+. Forneça as credenciais do ONTAP e selecione *Expandir Cluster*.
+. Selecione *Avançar* e execute a verificação prévia da rede selecionando *Executar*.
++
+A verificação prévia da rede valida se a rede interna selecionada para o tráfego do cluster ONTAP está funcionando corretamente.
+
+. Selecione *Expandir Cluster* para iniciar o processo de expansão do cluster e, em seguida, selecione *OK* na caixa de diálogo.
++
+Pode levar até 45 minutos para o cluster ser expandido.
+
+. Monitore o processo de expansão do cluster em várias etapas para confirmar que o cluster foi expandido com sucesso.
+. Consulte a aba *Eventos* para atualizações periódicas sobre o andamento da operação. A página é atualizada automaticamente em intervalos regulares.
+
+
+.Depois que você terminar
+Após expandir o cluster, você deve link:task_cli_clusters.html["Faça backup dos dados de configuração do ONTAP Select Deploy"].
+
+
+
+[[contract-the-cluster]]
+== Contrate o cluster
+
+Utilize o recurso de contração de cluster para diminuir o tamanho de um cluster ONTAP Select existente.
+
+Você pode diminuir o tamanho de um cluster existente em um host ESXi ou KVM nos seguintes incrementos:
+
+* De doze nós para dez, oito, seis ou quatro nós
+* De dez nós para oito, seis ou quatro nós
+* De oito a seis ou quatro nós
+* De seis para quatro nós
+
+
+.Sobre esta tarefa
+O par de HA de nós desejado no cluster é selecionado para preparar a contração do cluster durante o procedimento.
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Cluster* na parte superior da página e selecione o cluster desejado na lista.
+. Na página de detalhes do cluster, selecione o ícone de engrenagem à direita da página e, em seguida, selecione *Contract Cluster*.
+. Selecione os detalhes de configuração do par de HA para qualquer par de HA que você queira remover e forneça as credenciais do ONTAP. Em seguida, selecione *Contract Cluster*.
++
+Pode levar até 30 minutos para o cluster ser contraído.
+
+. Monitore o processo de contração do cluster em várias etapas para confirmar que o cluster foi contraído com sucesso.
+. Consulte a aba *Eventos* para atualizações periódicas sobre o andamento da operação. A página é atualizada automaticamente em intervalos regulares.
+

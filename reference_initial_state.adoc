@@ -1,0 +1,54 @@
+---
+sidebar: sidebar 
+permalink: reference_initial_state.html 
+keywords: install, installing, initial state, cluster initial state 
+summary: Você deve estar ciente do estado inicial de um cluster após sua implantação e configurá-lo conforme necessário para o seu ambiente. 
+---
+= Estado inicial do cluster ONTAP Select após a implantação
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Você deve estar ciente do estado inicial de um cluster após sua implantação e configurá-lo conforme necessário para o seu ambiente.
+
+Um cluster ONTAP Select possui diversas características após ser criado.
+
+
+NOTE: Restringir funções e permissões para a conta de administrador do ONTAP pode limitar a capacidade do ONTAP Select Deploy de gerenciar o cluster. Para obter mais informações, consulte o artigo da Knowledge Base link:https://kb.netapp.com/onprem/ontap/ONTAP_Select/OTS_Deploy_cluster_refresh_fails_with_error%3A_ONTAPSelectSysCLIVersionFailed_zapi_returned_bad_status_0%3A_None["A atualização do cluster OTS Deploy falha com erro"^].
+
+.LIFs
+Existem dois tipos de LIFs especificados pelo cliente:
+
+* Gerenciamento de clusters (um por cluster)
+* Gerenciamento de nós (um por nó)
+
+
+
+NOTE: Um cluster com múltiplos nós possui uma rede interna com LIFs geradas automaticamente.
+
+.SVMs
+Três SVMs estão ativas:
+
+* SVM de administração
+* SVM do nó
+* SVM de sistema (cluster)
+
+
+
+NOTE: Os SVMs de dados não são criados como parte da implantação do cluster ONTAP Select. Eles devem ser criados pelo administrador do cluster após a implantação. Para mais informações, consulte https://docs.netapp.com/us-en/ontap/nfs-config/create-svms-data-access-task.html["Crie uma SVM"^].
+
+.Agregados
+O agregado de raiz foi criado.
+
+.Características
+Todas as funcionalidades são licenciadas e estão disponíveis. Tanto SnapLock quanto FabricPool requerem licenças separadas.
+
+.Informações relacionadas
+* link:https://docs.netapp.com/us-en/ontap/system-admin/types-svms-concept.html["Tipos de SVMs contidos em um cluster"^]
+* link:reference_lic_ontap_features.html["Recursos do ONTAP licenciados por padrão"]
+

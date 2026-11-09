@@ -1,0 +1,196 @@
+---
+sidebar: sidebar 
+permalink: task_adm_licenses.html 
+keywords: administer, administering, web, licenses 
+summary: Existem diversas tarefas relacionadas que você pode executar como parte da administração das licenças do ONTAP Select. 
+---
+= Gerenciar licenças do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Existem diversas tarefas relacionadas que você pode executar como parte da administração das licenças do ONTAP Select.
+
+
+
+[[manage-the-capacity-tier-licenses]]
+== Gerenciar as licenças de nível de capacidade
+
+Você pode adicionar, editar e excluir licenças do ONTAP Select Capacity Tier conforme necessário.
+
+.Passos
+. Faça login no utilitário o Deploy pela interface da web usando a conta de administrador.
+. Selecione a aba *Administração* na parte superior da página.
+. Selecione *Licenças* e selecione *Nível de Capacidade*.
+. Opcionalmente, selecione *Filtrar* para limitar as licenças exibidas.
+. Para substituir uma licença existente, selecione uma licença, selecione image:icon_kebab.gif["Opções"], e selecione *Atualizar*.
+. Para adicionar uma nova licença, selecione *Adicionar* na parte superior da página e, em seguida, selecione *Carregar licença(s)* e selecione um arquivo de licença do seu workstation local.
+
+
+
+
+[[manage-the-capacity-pool-licenses]]
+== Gerenciar as licenças do Capacity Pool
+
+Você pode adicionar, editar e excluir licenças do ONTAP Select Capacity Pool conforme necessário.
+
+.Passos
+. Faça login no utilitário o Deploy pela interface da web usando a conta de administrador.
+. Selecione a aba *Administração* na parte superior da página.
+. Selecione *Licenças* e selecione *Pools de Capacidade*.
+. Opcionalmente, selecione *Filtrar* para limitar as licenças exibidas.
+. Opcionalmente, selecione uma licença e selecione image:icon_kebab.gif["Opções"] para gerenciar uma licença existente.
+. Adicionar uma nova licença ou renovar uma licença existente:
++
+[role="tabbed-block"]
+====
+.Adicionar nova licença
+--
+Para adicionar uma nova licença, selecione *Adicionar* na parte superior da página.
+
+--
+.Renovar licença existente
+--
+Para renovar uma licença existente:
+
+.. Selecione image:icon_kebab.gif["Opções"] em uma licença existente.
+.. Selecione *Carregar licença(s)*.
+.. Selecione um arquivo de licença em sua estação de trabalho local.
+
+
+--
+====
+. Para ver uma lista dos pools de capacidade:
++
+.. Selecione *Resumo*.
+.. Selecione e expanda um pool para ver os clusters e nós que estão alugando storage desse pool.
+.. Consulte o status atual da licença em *Informações da licença*.
+.. Você pode alterar a duração dos contratos de arrendamento emitidos para o pool em Vencimento do arrendamento.
+
+
+. Para ver uma lista dos clusters:
++
+.. Selecione *Detalhes*.
+.. Selecione e expanda o cluster para visualizar a utilização do storage.
+
+
+
+
+
+
+[[reinstall-a-capacity-pool-license]]
+== Reinstalar uma licença do Pool de Capacidade
+
+Cada licença ativa do Capacity Pool está vinculada a uma instância específica do License Manager, que está contida em uma instância do utilitário de administração do Deploy. Se você estiver usando uma licença do Capacity Pool e, em seguida, restaurar ou recuperar a instância do Deploy, a licença original não será mais válida. Você deve gerar um novo arquivo de licença do Capacity Pool e, em seguida, instalar a licença na nova instância do Deploy.
+
+.Antes de começar
+* Determine todas as licenças do Capacity Pool usadas pela instância Deploy original.
+* Se você restaurar um backup como parte da criação da nova instância do Deploy, determine se o backup está atual e atualizado.
+* Localize os nós do ONTAP Select que foram criados mais recentemente pela instância Deploy original (somente se um backup atualizado da instância Deploy original não for restaurado na nova instância Deploy).
+* Restaurar ou recriar a instância de Deploy
+
+
+.Sobre esta tarefa
+Em linhas gerais, esta tarefa é composta por três partes. Você deve regenerar e instalar todas as licenças do Capacity Pool usadas pela instância de Deploy. Após todas as licenças terem sido reinstaladas na nova instância de Deploy, você pode redefinir a sequência do número de série, se necessário. Por fim, se o endereço IP do Deploy tiver sido alterado, você deve atualizar cada nó do ONTAP Select que usa uma licença do Capacity Pools.
+
+.Passos
+. Entre em contato com o suporte da NetApp e certifique-se de que todas as licenças do Capacity Pool da instância Deploy original estejam desvinculadas e não registradas.
+. Adquira e faça o download de um novo arquivo de licença para cada uma das licenças do Capacity Pool.
++
+Consulte link:task_lic_acquire_cp.html["Adquira uma licença de Pool de Capacidade"] para obter mais informações.
+
+. Instale as licenças do Pool de Capacidade na nova instância de Deploy:
++
+.. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+.. Selecione a aba *Administração* na parte superior da página.
+.. Selecione *Licenças* e, em seguida, selecione *Capacity Pool*.
+.. Selecione *Adicionar* e depois *Carregar licença(s)* para selecionar e carregar as licenças.
+
+
+. Se você criou a nova instância do Deploy sem restaurar um backup ou usou um backup que não estava atual e atualizado, você deve atualizar o número de sequência de série:
++
+.. Faça login na interface de linha de comando do utilitário Deploy usando a conta de administrador.
+.. Exibir o número de série do nó criado mais recentemente pela instância Deploy original:
++
+`node show -cluster-name CLUSTER_NAME -name NODE_NAME -detailed`
+
+.. Extraia os últimos oito dígitos do número de série do nó de vinte dígitos para obter o último número de sequência serial usado pela instância Deploy original.
+.. Adicione 20 ao número sequencial de série para criar o novo número sequencial de série.
+.. Defina o número de sequência serial para a nova instância do Deploy:
++
+`license-manager modify -serial-sequence SEQ_NUMBER`
+
+
+
+. Se o endereço IP atribuído à nova instância do Deploy for diferente do endereço IP da instância original do Deploy, você deverá atualizar o endereço IP em cada nó do ONTAP Select que utiliza uma licença do Capacity Pools:
++
+.. Faça login na interface de linha de comando do ONTAP do nó ONTAP Select.
+.. Entre no modo de privilégios avançados:
++
+`set adv`
+
+.. Exibir a configuração atual:
++
+`system license license-manager show`
+
+.. Defina o endereço IP do License Manager (Deploy) usado pelo nó:
++
+`system license license-manager modify -host NEW_IP_ADDRESS`
+
+
+
+
+
+
+
+[[convert-an-evaluation-license-to-a-production-license]]
+[[convert-license]]
+== Converter uma licença de avaliação em uma licença de produção
+
+Você pode atualizar um cluster de avaliação do ONTAP Select para usar uma licença de Capacity Tier de produção com o utilitário de administração Deploy.
+
+.Antes de começar
+* Cada nó deve ter armazenamento suficiente alocado para suportar o mínimo exigido para uma licença de produção.
+* Você precisa ter licenças de nível de capacidade para cada nó no cluster de avaliação.
+
+
+.Sobre esta tarefa
+Alterar a licença de um cluster de nó único é um processo disruptivo. No entanto, isso não ocorre em um cluster com múltiplos nós, pois o processo de conversão reinicializa cada nó individualmente para aplicar a licença.
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Clusters* na parte superior da página e selecione o cluster desejado.
+. Na parte superior da página de detalhes do cluster, selecione *Clique aqui* para modificar a licença do cluster.
++
+Você também pode selecionar *Modificar* ao lado da licença de avaliação na seção *Detalhes do cluster*.
+
+. Selecione uma licença de produção disponível para cada nó ou carregue licenças adicionais conforme necessário.
+. Forneça as credenciais do ONTAP e selecione *Modificar*.
++
+A atualização da licença do cluster pode demorar alguns minutos. Aguarde a conclusão do processo antes de sair da página ou fazer qualquer outra alteração.
+
+
+
+.Depois que você terminar
+Os números de série de vinte dígitos originalmente atribuídos a cada nó para a implementação de avaliação são substituídos pelos números de série de nove dígitos das licenças de produção usadas para a atualização.
+
+
+
+[[manage-an-expired-capacity-pool-license]]
+== Gerenciar uma licença expirada do Capacity Pool
+
+Geralmente, quando uma licença expira, nada acontece. No entanto, você não pode instalar uma licença diferente porque os nós estão associados à licença expirada. Até que você renove a licença, você _não_ deve fazer nada que coloque o agregado offline, como uma reinicialização ou operação de failover. A ação recomendada é agilizar a renovação da licença.
+
+Para obter mais informações sobre ONTAP Select e renovação de licença, consulte a seção Licenças, instalação, atualizações e reversões no link:reference_faq.html#licenses-installation-upgrades-and-reverts["Perguntas frequentes"].
+
+
+
+[[manage-add-on-licenses]]
+== Gerenciar licenças adicionais
+
+Para o produto ONTAP Select, as licenças adicionais são aplicadas diretamente no ONTAP e não são gerenciadas pelo ONTAP Select Deploy. Consulte link:https://docs.netapp.com/us-en/ontap/system-admin/manage-licenses-concept.html["Visão geral do gerenciamento de licenças (somente para administradores de cluster)"^] e link:https://docs.netapp.com/us-en/ontap/task_admin_enable_new_features.html["Habilite novos recursos adicionando chaves de licença"^] para obter mais informações.

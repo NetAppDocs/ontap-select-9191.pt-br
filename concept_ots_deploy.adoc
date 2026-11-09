@@ -1,0 +1,87 @@
+---
+sidebar: sidebar 
+permalink: concept_ots_deploy.html 
+keywords: ontap select deploy, deploy administration utility, deploy utility, functionality, accessing 
+summary: O ONTAP Select Deploy é o utilitário de administração usado para implantar e gerenciar clusters ONTAP Select. 
+---
+= Saiba mais sobre o ONTAP Select Deploy
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+O ONTAP Select Deploy é o utilitário de administração usado para implantar e gerenciar clusters ONTAP Select. O Deploy é distribuído como uma máquina virtual Linux que você deve instalar antes de criar um cluster ONTAP Select.
+
+
+
+[[core-functionality]]
+== Funcionalidade principal
+
+O utilitário de administração Deploy executa as seguintes funções principais:
+
+* Registre os detalhes de cada host do hipervisor onde ONTAP Select está implantado
+* Configure os hosts e instale as licenças necessárias
+* Implante e gerencie os clusters ONTAP Select
+* Mantenha um inventário dos clusters e hosts do ONTAP Select
+* Coletar e enviar AutoSupport dados para NetApp
+* Manter um conjunto interno de imagens de nó do ONTAP Select
+* Suporte aos formatos e protocolos de comando específicos do hipervisor
+
+
+
+
+[[ways-you-can-access-the-deploy-utility]]
+== Formas de acessar o utilitário de Deploy
+
+Você tem várias opções disponíveis para acessar o utilitário de administração do Deploy. Todas as interfaces externas são funcionalmente equivalentes. Você deve selecionar a opção de acesso que melhor se adapte aos seus objetivos e requisitos específicos de implantação. Em todos os casos, você deve fazer login usando a conta de administrador com uma senha válida.
+
+
+
+[[web-graphical-user-interface]]
+=== Interface gráfica de usuário web
+
+Você pode acessar o utilitário Deploy por meio de um navegador web moderno. A interface web oferece uma interface intuitiva e fácil de usar, e na maioria dos casos será sua interface principal ao utilizar o utilitário.
+
+
+
+[[command-line-interface]]
+=== Interface de linha de comando
+
+Uma interface de linha de comando baseada em texto está disponível através do shell de gerenciamento. Você pode acessar o shell de gerenciamento da interface de linha de comando das seguintes maneiras:
+
+* Shell seguro (SSH)
+* Console da máquina virtual
+
+
+Normalmente, você usa o console da máquina virtual como parte do processo de instalação e configuração inicial. No entanto, na maioria das situações, o SSH oferece uma opção mais flexível e conveniente.
+
+
+
+[[rest-web-services-api]]
+=== API de serviços web REST
+
+A API de serviços web REST exposta a clientes externos oferece outra opção para conectar-se ao utilitário Deploy. Você pode acessar a API usando qualquer linguagem de programação ou ferramenta convencional que suporte serviços web REST. Opções populares incluem:
+
+* Python
+* Java
+* Curl
+
+
+A utilização de uma linguagem de script oferece a oportunidade de automatizar a implantação e o gerenciamento dos clusters ONTAP Select.
+
+
+
+[[ontap-select-online-documentation-web-page]]
+=== Página de documentação online do ONTAP Select
+
+Exibir a página de documentação online no utilitário de Deploy é uma forma alternativa de acessar a API de serviços web REST. No entanto, em vez de usar uma linguagem de programação, você acessa a API de gerenciamento por meio da página usando um navegador. Os seguintes recursos são fornecidos:
+
+* Uma descrição detalhada de cada chamada na API de serviços web REST
+* A capacidade de emitir manualmente qualquer uma das chamadas de API
+
+
+Você pode acessar a página de documentação online usando o endereço IP ou nome de domínio da máquina virtual Deploy. Para exibir a página, digite um URL com o seguinte formato no seu navegador (substituindo o endereço IP ou nome de domínio apropriado para a sua instância de Deploy VM): `\http://<ip_address>/api/ui`

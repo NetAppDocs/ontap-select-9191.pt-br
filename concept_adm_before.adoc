@@ -1,0 +1,80 @@
+---
+sidebar: sidebar 
+permalink: concept_adm_before.html 
+keywords: administer, administering, web, before you begin 
+summary: Após criar um cluster ONTAP Select, você pode dar suporte à implantação executando várias tarefas administrativas. Há algumas considerações gerais a serem levadas em conta. 
+---
+= Saiba mais sobre como administrar o ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Após criar um cluster ONTAP Select, você pode dar suporte à implantação executando várias tarefas administrativas. Há algumas considerações gerais a serem levadas em conta.
+
+Em geral, os procedimentos que você pode executar usando a interface web do Deploy se enquadram em uma das três categorias.
+
+.Implante um cluster ONTAP Select
+Você pode implantar um cluster de nó único ou de vários nós. Consulte link:task_deploy_cluster.html["Implante um cluster ONTAP Select"] para obter mais informações.
+
+.Execute um procedimento com um cluster ONTAP Select existente
+Os procedimentos administrativos estão organizados em diversas categorias, como _Segurança_ e _Clusters_.
+
+.Execute um procedimento no utilitário Deploy
+Existem diversos procedimentos específicos para o Deploy (como a alteração da senha do administrador).
+
+
+
+[[administer-ontap-select]]
+== Administrar ONTAP Select
+
+Existem diversos procedimentos administrativos disponíveis para dar suporte ao ONTAP Select. Além disso, existem procedimentos específicos para o utilitário administrativo Deploy. Os mais importantes desses procedimentos são apresentados abaixo. Em geral, todos utilizam a interface de usuário web do Deploy.
+
+
+NOTE: Você também pode link:https://docs.netapp.com/us-en/ontap-select/task_cli_signing_in.html["utilize a interface de linha de comando"] administrar ONTAP Select.
+
+
+
+[[perform-additional-ontap-configuration]]
+== Realizar configurações adicionais do ONTAP
+
+Após a implantação de um cluster ONTAP Select, você pode configurar e gerenciar o cluster da mesma forma que faria com um sistema ONTAP baseado em hardware. Por exemplo, você pode usar o ONTAP System Manager ou a interface de linha de comando do ONTAP para configurar o cluster ONTAP Select.
+
+.NetApp software cliente
+Você pode se conectar ao ONTAP Select usando os seguintes softwares cliente NetApp compatíveis:
+
+* ONTAP System Manager
+* Active IQ Unified Manager
+* OnCommand Insight
+* OnCommand Workflow Automation
+* SnapCenter
+* Console de armazenamento virtual para VMware vSphere
+
+
+Para identificar as versões suportadas do software cliente, consulte a link:https://mysupport.netapp.com/matrix/["Ferramenta de Matriz de Interoperabilidade"^]. Se o software cliente for compatível com ONTAP 9, essa mesma versão também será compatível com ONTAP Select.
+
+
+NOTE: O uso do SnapCenter e dos respectivos plug-ins requer licenças baseadas em servidor. O licenciamento do sistema de storage dos plug-ins do SnapCenter não é atualmente compatível com ONTAP Select.
+
+Qualquer outro software cliente NetApp que não esteja incluído na lista não é compatível com o ONTAP Select.
+
+.Opções de configuração possíveis
+Existem diversas opções disponíveis ao configurar o cluster, incluindo as seguintes:
+
+* Criando a configuração de rede
+* Preparando o layout dos agregados
+* Criando as máquinas virtuais de storage (SVMs)
+
+
+.Licenças adquiridas com capacidade de storage
+Caso tenha optado por não instalar os arquivos de licença com capacidade de storage como parte da implantação do ONTAP Select cluster, você deverá adquirir e instalar os arquivos de licença antes do término do período de carência para clusters em execução com uma licença adquirida.
+
+.Agregados espelhados
+O utilitário de administração Deploy cria discos de dados sobressalentes em cada nó do ONTAP Select a partir do espaço de datastore utilizável (como, Pool0 e Pool1). Para implementar alta disponibilidade para seus dados em um cluster com vários nós, você deve criar um agregado espelhado usando esses sobressalentes.
+
+
+NOTE: A transferência de alta disponibilidade só é suportada quando os agregados de dados são configurados como agregados espelhados.

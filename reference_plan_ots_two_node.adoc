@@ -1,0 +1,41 @@
+---
+sidebar: sidebar 
+permalink: reference_plan_ots_two_node.html 
+keywords: plan, planning, two nodes, two node clusters 
+summary: A implementação de um cluster de dois nós com par de HA envolve o mesmo planejamento e configuração usados em outras configurações de nó de cluster. No entanto, existem algumas diferenças que você deve levar em consideração ao criar um cluster de dois nós. 
+---
+= ONTAP Select clusters de dois nós com HA
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+A implementação de um cluster de dois nós com par de HA envolve o mesmo planejamento e configuração usados em outras configurações de nó de cluster. No entanto, existem algumas diferenças que você deve levar em consideração ao criar um cluster de dois nós.
+
+.Ambiente alvo
+O cluster de dois nós consiste em um par de HA e foi projetado especificamente para implantações em escritórios remotos e filiais.
+
+
+NOTE: Embora tenha sido projetado principalmente para ambientes remotos e filiais, você também pode implantar um cluster de dois nós no data center se necessário.
+
+.Licenciamento
+Você pode implantar um cluster de dois nós usando qualquer licença VMware vSphere. No entanto, as licenças VMware ROBO Standard e Advanced são ideais para implantações em escritórios remotos e filiais.
+
+.Serviço de mediação
+Quando um cluster consiste em dois nós, não é possível atingir o quorum necessário quando um nó falha ou perde a comunicação. Para resolver esses tipos de situações de split-brain, cada instância do utilitário ONTAP Select Deploy inclui um serviço mediador. Esse serviço se conecta a cada nó nos clusters ativos de dois nós para monitorar os pares de HA e auxiliar no gerenciamento de falhas. O serviço mediador mantém as informações de estado de HA em um destino iSCSI associado a cada cluster de dois nós.
+
+
+CAUTION: Se você tiver um ou mais clusters ativos de dois nós, a máquina virtual ONTAP Select Deploy que administra os clusters deve estar em execução o tempo todo. Se a máquina virtual ONTAP Select Deploy for interrompida ou falhar, o serviço de mediação ficará indisponível e a capacidade de HA será perdida para os clusters de dois nós.
+
+.Localização do cluster e do serviço mediador
+Como os clusters de dois nós são normalmente implantados em um escritório remoto ou filial, eles podem estar distantes do data center corporativo e do utilitário ONTAP Select Deploy que fornece suporte administrativo. Com essa configuração, o tráfego de gerenciamento entre o utilitário ONTAP Select Deploy e o cluster flui pela WAN. Consulte o link:reference_release_notes.html["notas de lançamento"] para obter mais informações sobre limitações e restrições.
+
+.Faça backup dos dados de configuração do Deploy
+É uma boa prática link:task_cli_clusters.html["Faça backup dos dados de configuração do ONTAP Select Deploy"] regularmente, inclusive após a criação de um cluster. Isso se torna particularmente importante em clusters de dois nós, devido aos dados de configuração do mediador incluídos no backup.
+
+.Endereço IP estático atribuído ao Deploy
+Você deve atribuir um endereço IP estático ao utilitário de administração ONTAP Select Deploy. Esse requisito se aplica a todas as instâncias do ONTAP Select Deploy que gerenciam um ou mais clusters de dois nós do ONTAP Select.

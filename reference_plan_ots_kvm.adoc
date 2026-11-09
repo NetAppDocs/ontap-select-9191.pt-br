@@ -1,0 +1,45 @@
+---
+sidebar: sidebar 
+permalink: reference_plan_ots_kvm.html 
+keywords: plan, planning, vnas, kvm 
+summary: Existem diversas questões de planejamento relacionadas ao uso do hipervisor KVM que você deve considerar. 
+---
+= Requisitos de storage externo KVM para ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Você pode configurar ONTAP Select no hipervisor KVM com um array de storage externo.
+
+
+
+[[basic-requirements-and-restrictions]]
+== Requisitos básicos e restrições
+
+Se você usar um array externo para os pools de armazenamento do ONTAP Select, as seguintes restrições de configuração se aplicam:
+
+* Você deve definir o tipo de pool lógico usando CLVM.
+* Você deve fornecer um limite de capacidade de storage.
+* A configuração suporta apenas os protocolos FC, Fibre Channel over Ethernet (FCoE) e iSCSI.
+* A configuração não reconhece armazenamento com provisionamento dinâmico.
+
+
+
+CAUTION: A capacidade de storage especificada deve estar dentro dos limites permitidos para o storage externo. Ocorrerá um erro se você não fornecer um limite de capacidade ou se o storage externo ficar sem espaço durante a operação de criação do disco.
+
+
+
+[[best-practices]]
+== Melhores práticas
+
+Você deve seguir estas boas práticas:
+
+* Defina portas de rede dedicadas, largura de banda e configurações de vSwitch para as redes ONTAP Select e armazenamento externo
+* Configure a opção de capacidade para restringir a utilização do storage (ONTAP Select não pode consumir toda a capacidade de um pool de storage externo)
+* Verifique se todos os arrays de storage externo utilizam os recursos de redundância e alta disponibilidade (HA) disponíveis, sempre que possível
+

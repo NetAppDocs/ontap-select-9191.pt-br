@@ -1,0 +1,39 @@
+---
+sidebar: sidebar 
+permalink: task_adm_resize.html 
+keywords: administer, administering, web, resizing nodes, resizing 
+summary: Após implantar um cluster ONTAP Select, você pode atualizar o tipo de instância do hipervisor dos nós usando o utilitário de administração Deploy. 
+---
+= Redimensionar os nós do cluster ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Após implantar um cluster ONTAP Select, você pode atualizar o tipo de instância do hipervisor dos nós usando o utilitário de administração Deploy.
+
+
+NOTE: É possível realizar a operação de redimensionamento dos nós do cluster ao usar o modelo de licenciamento Capacity Tiers e o modelo de licenciamento Capacity Pools.
+
+
+NOTE: O redimensionamento para o tipo de instância grande só é compatível com ESXi.
+
+.Antes de começar
+O cluster deve estar no estado online.
+
+.Sobre esta tarefa
+Esta tarefa descreve como usar a interface de usuário web do Deploy. Você também pode usar a CLI do Deploy para realizar o redimensionamento da instância. Independentemente de qual interface você use, o tempo necessário para a operação de redimensionamento pode variar significativamente com base em vários fatores e pode levar um tempo prolongado para ser concluída. Você só pode redimensionar um nó para um tamanho maior.
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Cluster* na parte superior da página e, em seguida, selecione o cluster desejado na lista.
+. Na página de detalhes do cluster, selecione o ícone de engrenagem à direita da página e selecione *Redimensionar instância*.
+. Selecione o *Tipo de Instância* e forneça as credenciais do ONTAP, depois selecione *Modificar*.
+
+
+.Depois que você terminar
+Você deve aguardar a conclusão da operação de redimensionamento.

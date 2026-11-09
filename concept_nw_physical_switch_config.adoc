@@ -1,0 +1,51 @@
+---
+sidebar: sidebar 
+permalink: concept_nw_physical_switch_config.html 
+keywords: ontap select, upstream physical switch configuration 
+summary: Detalhes da configuração física do switch upstream com base em ambientes de switch único e de múltiplos switches. 
+---
+= Configuração de switch físico do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Detalhes da configuração física do switch upstream com base em ambientes de switch único e de múltiplos switches.
+
+Ao tomar decisões de conectividade entre a camada de switches virtuais e os switches físicos, é fundamental considerar cuidadosamente o contexto. A separação do tráfego interno do cluster dos serviços de dados externos deve se estender à camada de rede física upstream, por meio do isolamento proporcionado pelas VLANs de camada 2.
+
+As portas físicas do switch devem ser configuradas como trunkports. O tráfego externo do ONTAP Select pode ser separado em várias redes de camada 2 de uma das duas maneiras. Um método é usar portas virtuais ONTAP com VLAN marcada com um único grupo de portas. O outro método é atribuir grupos de portas separados em modo VST à porta de gerenciamento e0a. Você também deve atribuir portas de dados a e0b e e0c/e0g, dependendo da versão do ONTAP Select e da configuração de cluster de nó único ou multinó. Se o tráfego externo for separado em várias redes de camada 2, as portas físicas do switch de uplink devem ter essas VLANs em sua lista de VLANs permitidas.
+
+O tráfego de rede interno do ONTAP Select ocorre por meio de interfaces virtuais definidas com endereços IP locais de link. Como esses endereços IP não são roteáveis, o tráfego interno entre nós do cluster deve fluir por uma única rede de camada 2. Saltos de rota entre nós do cluster ONTAP Select não são suportados.
+
+
+
+[[shared-physical-switch]]
+== Switch físico compartilhado
+
+A figura a seguir ilustra uma possível configuração de switch usada por um nó em um cluster ONTAP Select com vários nós. Neste exemplo, as NICs físicas usadas pelos vSwitches que hospedam tanto os grupos de portas de rede interna quanto externa estão conectadas ao mesmo switch upstream. O tráfego do switch é mantido isolado por meio de domínios de broadcast contidos em VLANs separadas.
+
+
+NOTE: Para a rede interna do ONTAP Select, a marcação é feita no nível do grupo de portas. Embora o exemplo a seguir use VGT para a rede externa, tanto VGT quanto VST são suportados nesse grupo de portas.
+
+*Configuração de rede usando switch físico compartilhado*
+
+image:DDN_06.jpg["Configuração de rede usando switch físico compartilhado"]
+
+
+NOTE: Nessa configuração, o switch compartilhado se torna um ponto único de falha. Se possível, vários switches devem ser usados para evitar que uma falha física de hardware cause uma interrupção na rede do cluster.
+
+
+
+[[multiple-physical-switches]]
+== Vários switches físicos
+
+Quando redundância é necessária, vários switches de rede físicos devem ser usados. A figura a seguir mostra uma configuração recomendada usada por um nó em um cluster ONTAP Select com vários nós. As NICs dos grupos de portas internas e externas são conectadas a switches físicos diferentes, protegendo o usuário contra a falha de um único switch de hardware. Um canal de porta virtual é configurado entre os switches para evitar problemas de spanning tree.
+
+*Configuração de rede usando vários switches físicos*
+
+image:DDN_07.jpg["Configuração de rede usando vários switches físicos"]

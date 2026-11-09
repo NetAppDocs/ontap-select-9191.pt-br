@@ -1,0 +1,92 @@
+---
+sidebar: sidebar 
+permalink: reference_plan_ots_vcenter.html 
+keywords: plan, planning, vmware vcenter, vcenter server, vcenter 
+summary: Existem vários requisitos de planejamento relacionados ao VMware vCenter que você deve considerar. 
+---
+= ONTAP Select VMware vCenter server no ESXi
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Você deve definir uma conta de servidor vCenter e associá-la a uma função que contenha os privilégios administrativos necessários.
+
+
+NOTE: Você também precisa do nome de domínio totalmente qualificado ou endereço IP do servidor vCenter que gerencia os hosts do hipervisor ESXi onde ONTAP Select está implantado.
+
+
+
+[[administrative-privileges]]
+== Privilégios administrativos
+
+Os privilégios administrativos mínimos necessários para criar e gerenciar um cluster ONTAP Select são apresentados abaixo.
+
+
+
+[[datastore]]
+=== Datastore
+
+* Alocar espaço
+* Navegar no datastore
+* Operações de arquivo de baixo nível
+* Atualizar arquivos de máquina virtual
+* Atualizar metadados da máquina virtual
+
+
+
+
+[[host]]
+=== Host
+
+Configuração::
++
+--
+* Configuração de rede
+* Gerenciamento do sistema
+
+
+--
+Operações locais::
++
+--
+* Criar máquina virtual
+* Excluir máquina virtual
+* Reconfigurar máquina virtual
+
+
+--
+
+
+
+
+[[network]]
+=== Rede
+
+* Atribuir rede
+
+
+
+
+[[virtual-machine]]
+=== Máquina virtual
+
+Configuração:: Todos os privilégios da categoria.
+Interação:: Todos os privilégios da categoria.
+Inventário:: Todos os privilégios da categoria.
+Provisionamento:: Todos os privilégios da categoria.
+
+
+
+
+[[vapp]]
+=== vApp
+
+Todos os privilégios da categoria.
+
+.Informações relacionadas
+link:reference_plan_dep_vmware.html#vmware-vcenter-server-considerations["Saiba mais sobre os privilégios do VMware vSphere para vSAN ESA em vCenter"]

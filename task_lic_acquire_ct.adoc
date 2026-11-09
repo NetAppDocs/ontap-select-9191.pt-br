@@ -1,0 +1,45 @@
+---
+sidebar: sidebar 
+permalink: task_lic_acquire_ct.html 
+keywords: license, licensing, acquire, Capacity Tiers 
+summary: Ao usar o licenciamento por níveis de capacidade, você precisa adquirir um arquivo de licença para cada nó do ONTAP Select. O arquivo de licença define a capacidade de storage do nó e é vinculado a ele por meio do número de série exclusivo de nove dígitos atribuído pela NetApp. 
+---
+= Adquira uma licença ONTAP Select Capacity Tier
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Ao usar o licenciamento por níveis de capacidade, você precisa adquirir um arquivo de licença para cada nó do ONTAP Select. O arquivo de licença define a capacidade de storage do nó e é vinculado a ele por meio do número de série exclusivo de nove dígitos atribuído pela NetApp.
+
+.Antes de começar
+* Você deve ter o número de série da licença de nove dígitos atribuído ao nó ONTAP Select pela NetApp.
+* Você deve aguardar pelo menos 24 horas após a data de envio do seu pedido de compra antes de adquirir o arquivo de licença.
+* Você revisou o link:sizing-capacity-tier-license.html["Considerações para dimensionar uma licença de Capacity Tiers"].
+
+
+.Sobre esta tarefa
+Você deve executar esta tarefa para cada nó do ONTAP Select que requer uma licença Capacity Tiers.
+
+.Passos
+. link:https://register.netapp.com/register/getlicensefile["Acesse o site de licenças do ONTAP Select"^].
+. Faça login usando as credenciais da sua conta NetApp.
+. Na página *Gerador de Licenças*, selecione a oferta de licença desejada na caixa suspensa.
+. Preencha os campos restantes na página *License Generator*, incluindo o *Product Serial #*.
++
+O "número de série do produto" é o número de série do nó ONTAP Select.
+
+. Selecione *Enviar*.
+. Após a validação da solicitação, selecione o método de entrega da licença.
++
+Você pode selecionar *Baixar Licença* ou *Enviar Licença por E-mail*.
+
+. Confirme se você recebeu o arquivo de licença de acordo com o método de entrega selecionado.
+
+
+.Depois que você terminar
+Você deve carregar o arquivo de licença no utilitário de administração Deploy antes que ele possa ser aplicado a um nó ONTAP Select.

@@ -1,0 +1,42 @@
+---
+sidebar: sidebar 
+permalink: concept_api_before_browser.html 
+keywords: rest api, deploy rest api, rest, access browser, before you begin 
+summary: Existem alguns pontos importantes que você deve levar em consideração antes de usar a página de documentação online do Deploy. 
+---
+= Saiba como acessar a API do ONTAP Select Deploy com um navegador
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Existem alguns pontos importantes que você deve levar em consideração antes de usar a página de documentação online do Deploy.
+
+
+
+[[deployment-plan]]
+== Plano de implantação
+
+Se você pretende fazer chamadas à API como parte da execução de tarefas específicas de implantação ou administração, considere criar um plano de implantação. Esses planos podem ser formais ou informais e geralmente contêm seus objetivos e as chamadas à API a serem usadas. Consulte Processos de fluxo de trabalho usando a API REST do Deploy para mais informações.
+
+
+
+[[json-examples-and-parameter-definitions]]
+== Exemplos de JSON e definições de parâmetros
+
+Cada chamada de API é descrita na página de documentação usando um formato consistente. O conteúdo inclui notas de implementação, parâmetros de consulta e códigos de status HTTP. Além disso, você pode exibir detalhes sobre o JSON usado nas solicitações e respostas da API da seguinte forma:
+
+* Valor de exemplo Se você selecionar _Valor de exemplo_ em uma chamada de API, uma estrutura JSON típica para a chamada será exibida. Você pode modificar o exemplo conforme necessário e usá-lo como entrada para sua solicitação.
+* Modelo Se você selecionar _Modelo_, será exibida uma lista completa dos parâmetros JSON, com uma descrição para cada parâmetro.
+
+
+
+
+[[caution-when-issuing-api-calls]]
+== Cuidado ao fazer chamadas de API
+
+Todas as operações de API que você realiza usando a página de documentação de Deploy são operações em tempo real. Você deve ter cuidado para não criar, atualizar ou excluir configurações ou outros dados por engano.

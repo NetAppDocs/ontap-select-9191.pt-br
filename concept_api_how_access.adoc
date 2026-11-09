@@ -1,0 +1,41 @@
+---
+sidebar: sidebar 
+permalink: concept_api_how_access.html 
+keywords: rest api, deploy rest api, rest, access, accessing, how to access 
+summary: Devido à flexibilidade inerente dos serviços web REST, a API ONTAP Select Deploy pode ser acessada de diversas maneiras. 
+---
+= Saiba como acessar a API de Deploy do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Devido à flexibilidade inerente dos serviços web REST, a API ONTAP Select Deploy pode ser acessada de diversas maneiras.
+
+
+NOTE: A API REST incluída no ONTAP Select Deploy possui um número de versão. O número da versão da API é independente do número da versão do Deploy. O utilitário de administração do ONTAP Select 9.19.1 Deploy inclui a versão 3 da API REST.
+
+
+
+[[deploy-utility-native-user-interface]]
+== Implantar interface de usuário nativa da ferramenta
+
+A principal forma de acessar a API é através da interface de usuário baseada na Web do ONTAP Select Deploy. O navegador faz chamadas à API e reformata os dados de acordo com o design da interface de usuário. Você também acessa a API através da interface de linha de comando da Deploy utility.
+
+
+
+[[ontap-select-deploy-online-documentation-page]]
+== Página de documentação online do ONTAP Select Deploy
+
+A página de documentação online do ONTAP Select Deploy oferece um ponto de acesso alternativo para uso em navegadores. Além de permitir a execução direta de chamadas de API individuais, a página também inclui uma descrição detalhada da API, incluindo parâmetros de entrada e outras opções para cada chamada. As chamadas de API são organizadas em diversas áreas funcionais ou categorias.
+
+
+
+[[custom-program]]
+== Programa personalizado
+
+Você pode acessar a API de Deploy usando diversas linguagens de programação e ferramentas. Opções populares incluem Python, Java e cURL. Um programa, script ou ferramenta que utiliza a API atua como um cliente de serviços web REST. Usar uma linguagem de programação permite que você compreenda melhor a API e oferece a oportunidade de automatizar as implantações do ONTAP Select.

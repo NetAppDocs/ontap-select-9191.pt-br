@@ -1,0 +1,38 @@
+---
+sidebar: sidebar 
+permalink: concept_lic_cp_restrictions.html 
+keywords: license, licensing, Capacity Pools, restrictions 
+summary: As restrições aplicáveis ao uso do modelo de licenciamento Capacity Pool são apresentadas abaixo. 
+---
+= Restrições de implantação para ONTAP Select Capacity Pools licensing
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+As restrições aplicáveis ao uso do modelo de licenciamento Capacity Pool são apresentadas abaixo.
+
+.Modelo de licenciamento consistente por cluster
+Todos os nós em um único ONTAP Select cluster devem usar o mesmo modelo de licenciamento, seja Capacity Tiers ou Capacity Pools. Não é possível misturar os tipos de licenciamento para os nós dentro de um único cluster.
+
+.Todos os nós em um cluster usam a mesma instância do License Manager
+Todos os nós com uma licença de Capacity Pool em um cluster ONTAP Select devem usar a mesma instância do License Manager. Como existe uma instância do License Manager em cada instância do Deploy, essa restrição é uma reafirmação do requisito existente de que a mesma instância do Deploy deve gerenciar todos os nós em um cluster.
+
+.Um pool de capacidade por nó
+Cada nó pode alugar storage de exatamente um Capacity Pool. Um nó não pode usar dois ou mais pools.
+
+.Mesmo pool para nós em um par de HA
+Ambos os nós em um único par de HA devem alugar storage do mesmo Capacity Pool. No entanto, pares de HA diferentes dentro do mesmo cluster podem alugar storage de pools diferentes gerenciados pelo mesmo License Manager.
+
+.Duração da licença de storage
+Você deve escolher uma duração de licença ao adquirir a licença de storage da NetApp. Por exemplo, uma licença pode ser válida por um ano.
+
+.Duração do contrato de arrendamento do agregado de dados
+Quando um nó ONTAP Select solicita um lease de armazenamento para um agregado de dados, o License Manager fornece um lease por uma duração específica com base na configuração do Capacity Pool. Você pode configurar a duração do lease para cada pool entre uma hora e sete dias. A duração padrão do lease é de 24 horas.
+
+.Endereço IP estático atribuído ao Deploy
+Você deve atribuir um endereço IP estático ao utilitário de administração Deploy quando o modelo de licenciamento Capacity Pools for utilizado.

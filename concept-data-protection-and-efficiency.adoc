@@ -1,0 +1,53 @@
+---
+sidebar: sidebar 
+permalink: concept-data-protection-and-efficiency.html 
+keywords: ontap select, metrocluster software defined storage, mc sds storage 
+summary: ONTAP Select MetroCluster SDS oferece proteção aprimorada e uma implementação com boa relação custo-benefício. 
+---
+= Proteção e eficiência de dados do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP Select é baseado no ONTAP software de storage para fornecer serviços de armazenamento corporativo de forma eficiente, com uma arquitetura com escalabilidade horizontal altamente disponível e sem compartilhamento. Você pode implementar uma solução com um, dois, quatro, seis, oito, dez ou doze nós, com até 400TB de capacidade bruta para armazenamento conectado via NFS, SMB/CIFS e iSCSI por nó. Você pode aproveitar a deduplicação e a compactação nativas para reduzir os custos de storage, aumentando sua capacidade efetiva. A arquitetura com escalabilidade horizontal permite alta disponibilidade e acesso ininterrupto aos dados para balanceamento de carga ou manutenção de hardware.
+
+
+
+[[snapshot-data-protection]]
+== Proteção de dados Snapshot
+
+ONTAP Select inclui recursos de proteção de dados, incluindo snapshots e SnapMirror software. Você pode replicar seus dados rapidamente para outro storage ONTAP, seja localmente, em um local remoto ou na nuvem. Se precisar recuperar seus dados rapidamente, o software SnapRestore pode usar snapshots locais para recuperar sistemas de arquivos ou volumes de dados inteiros em segundos, independentemente da capacidade ou do número de arquivos.
+
+
+
+[[metrocluster-software-defined-storage]]
+== MetroCluster storage definido por software
+
+ONTAP Select MetroCluster software definido por software (SDS) oferece proteção aprimorada e uma implementação com boa relação custo-benefício.
+
+Um cluster de dois nós pode ser estendido entre duas localizações se certos requisitos mínimos forem atendidos. Essa arquitetura se encaixa perfeitamente entre MetroCluster baseado em hardware e clusters de data center único (definidos por hardware ou definido por software). Os requisitos para o ONTAP Select MetroCluster SDS destacam a flexibilidade geral das soluções de storage definido por software, bem como as diferenças entre elas e as soluções MetroCluster SDS baseado em hardware. Nenhum hardware proprietário é necessário.
+
+Ao contrário de MetroCluster, ONTAP Select utiliza a infraestrutura de rede existente e suporta uma latência de rede de até 5ms RTT com um jitter máximo de até 5ms, totalizando uma latência máxima de 10ms. Os requisitos de separação no mercado estão mais relacionados à separação física do que à distância em si. Em alguns casos, isso pode significar edifícios diferentes. Em outros casos, pode significar salas diferentes no mesmo edifício. Independentemente da localização física, o que define um cluster de dois nós como um MetroCluster SDS é que cada nó utiliza um switch de uplink separado.
+
+Como parte da configuração de par de HA de dois nós, um mediador é necessário para identificar corretamente o nó ativo durante um failover e evitar qualquer cenário de split-brain no qual ambos os nós permaneçam ativos independentemente durante uma partição de rede. Essa operação é idêntica à configuração regular de par de HA de dois nós disponível anteriormente. Para proteção e failover adequados durante falha do local, o mediador deve estar em um local diferente dos dois nós de HA. A latência máxima entre o mediador e cada nó ONTAP Select não pode exceder 125 ms.
+
+ONTAP Select MetroCluster SDS oferece os seguintes benefícios:
+
+* MetroCluster SDS oferece outra dimensão (data center para data center) de proteção para ONTAP Select. Agora você pode aproveitar esse nível extra de proteção, além de aproveitar todos os benefícios do storage definido por software e do ONTAP.
+* MetroCluster SDS oferece proteção de dados essenciais aos negócios com RPO zero e failover automático. Tanto o storage quanto os pontos de acesso aos aplicativos são automaticamente transferidos para o data center ou nó sobrevivente, sem qualquer intervenção da TI.
+* MetroCluster SDS é economicamente vantajoso. Ele aproveita a infraestrutura de rede existente para permitir resiliência entre o par de HA, sem a necessidade de hardware adicional. Ele também oferece acesso a dados ativo-ativo e redundância de data center no mesmo cluster.
+
+
+*MetroCluster SDS*
+
+image:MCSDS_01.jpg["Nuvem privada construída sobre DAS"]
+
+Para obter mais informações sobre boas práticas e outros requisitos, consulte as seções link:concept_ha_config.html#two-node-ha-versus-multi-node-ha["HA de dois nós versus HA de múltiplos nós"] e link:reference_plan_best_practices.html#two-node-stretched-ha-metrocluster-sds-best-practices["Melhores práticas para HA estendida de dois nós (MetroCluster SDS)"].
+
+.Informações relacionadas
+link:reference_lic_ontap_features.html["Suporte do ONTAP Select para recursos do ONTAP"]

@@ -1,0 +1,234 @@
+---
+sidebar: sidebar 
+permalink: task_install_deploy.html 
+keywords: install, installing, ontap select deploy, deploy administration utility, deploy utility 
+summary: Você precisa instalar o utilitário de administração ONTAP Select Deploy e usá-lo para criar um cluster ONTAP Select. 
+---
+= Instalar ONTAP Select Deploy
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Você precisa instalar o utilitário de administração ONTAP Select Deploy e usá-lo para criar um cluster ONTAP Select.
+
+.Antes de começar
+Você revisou o link:kvm-host-configuration-and-preparation-checklist.html["lista de verificação pré-instalação"].
+
+
+
+[[step-1-download-the-virtual-machine-image]]
+== Passo 1: Baixe a imagem da máquina virtual
+
+Faça o download do pacote ONTAP Select no site de suporte da NetApp.
+
+.Antes de começar
+https://mysupport.netapp.com/site/user/registration["Você possui uma conta registrada no site de suporte da NetApp"^].
+
+.Sobre esta tarefa
+O utilitário de administração ONTAP Select Deploy é empacotado como uma máquina virtual (VM) baseada no padrão Open Virtualization Format (OVF). O arquivo único compactado possui o sufixo `OVA` para hosts ESXi e `TGZ` para hosts KVM. A VM fornece o servidor Deploy e as imagens de instalação para os nós do ONTAP Select.
+
+.Passos
+. Acesse a link:https://mysupport.netapp.com/site/downloads/["Downloads do site de suporte da NetApp"^] página.
+. Deslize para baixo e selecione *ONTAP Select Deploy*.
+. Selecione a versão desejada do ONTAP Select.
+. Leia atentamente o contrato de licença do usuário final (EULA) e selecione *Aceitar e Continuar*.
+. Selecione e faça o download do pacote *ONTAP Select Deploy Install* apropriado. Responda a todas as solicitações conforme necessário.
+
+
+
+
+[[step-2-verify-the-ontap-select-deploy-ova-signature]]
+== Etapa 2: Verifique a assinatura OVA do ONTAP Select Deploy
+
+Verifique a assinatura do ONTAP Select Open Virtualization Appliance (OVA) antes de instalar o pacote de instalação.
+
+.Antes de começar
+Verifique se o seu sistema atende aos seguintes requisitos:
+
+* Versões do OpenSSL de 1.0.2 a 3.0 para verificação básica
+* Acesso público à internet para verificação do Protocolo de Status de Certificado Online (OCSP)
+
+
+.Passos
+. Obtenha os seguintes arquivos na página de download do produto no site de suporte da NetApp:
++
+[cols="2*"]
+|===
+| Arquivo | Descrição 
+
+
+| `ONTAP-Select-Deploy-Production.pub` | A chave pública usada para verificar a assinatura. 
+
+
+| `csc-prod-chain-ONTAP-Select-Deploy.pem` | A cadeia de confiança da autoridade de certificação pública (CA). 
+
+
+| `csc-prod-ONTAP-Select-Deploy.pem` | O certificado usado para gerar a chave. 
+
+
+| `ONTAPdeploy.ova` | O executável de instalação do produto para ONTAP Select. 
+
+
+| `ONTAPdeploy.ova.sig` | O algoritmo SHA-256 é hash e, em seguida, assinado pelo Agente de Suporte Remoto (RSA) usando a  `csc-prod` chave e a assinatura para o instalador. 
+|===
+. Verifique se o  `ONTAPdeploy.ova.sig` arquivo está usando os certificados e comandos de validação associados.
+. Verifique a assinatura:
++
+[source, cli]
+----
+openssl dgst  -sha256 -verify ONTAP-Select-Deploy-Production.pub -signature ONTAPdeploy.ova.sig  ONTAPdeploy.ova
+----
+
+
+
+
+[[step-3-deploy-the-virtual-machine]]
+== Etapa 3: implantar a máquina virtual
+
+Instale e inicie a máquina virtual ONTAP Select Deploy usando a imagem OVF da máquina virtual. Como parte do processo de instalação, você configura a interface de rede para usar DHCP ou uma configuração de IP estático.
+
+.Antes de começar
+Para um hipervisor ESXi, você deve se preparar para implantar a máquina virtual ONTAP Select Deploy:
+
+* Habilite a funcionalidade OVF no seu navegador instalando o VMware Client Integration Plugin ou realizando configuração semelhante, conforme necessário
+* Habilite o DHCP no ambiente VMware se você for atribuir um endereço IP dinamicamente à Deploy VM
+
+
+Para hipervisores ESXi e KVM, você precisa das informações de configuração a serem usadas na criação da máquina virtual, incluindo o nome da máquina virtual, a rede externa e o nome do host. Ao definir uma configuração de rede estática, você precisa das seguintes informações adicionais:
+
+* Endereço IP da máquina virtual de implantação
+* Netmask
+* Endereço IP do gateway (roteador)
+* Endereço IP do servidor DNS primário
+* Endereço IP do segundo servidor DNS
+* Domínios de pesquisa DNS
+
+
+.Sobre esta tarefa
+Se você usar vSphere, o assistente de modelo OVF de implantação incluirá um formulário para fornecer todas as informações de configuração de implantação, incluindo a configuração de rede. No entanto, se você optar por não usar esse formulário, poderá usar o console da VM de implantação para configurar a rede.
+
+.Passos
+Os passos que você segue dependem de usar um hipervisor ESXi ou KVM.
+
+[role="tabbed-block"]
+====
+.ESXi
+--
+. Acesse o cliente do vSphere e faça login.
+. Navegue até o local apropriado na hierarquia e selecione *Implantar modelo OVF*.
+. Selecione o arquivo OVA e conclua o assistente de implantação do modelo OVF. Selecione as opções adequadas ao seu ambiente.
++
+Você deve definir a senha para a conta de administrador. Você precisa fornecer essa senha ao entrar no utilitário Deploy.
+
+. Após a implantação da VM, selecione a nova VM. Se ela ainda não estiver ligada de acordo com a sua entrada no assistente de implantação, ligue-a manualmente.
+. Caso necessário, você pode configurar a rede Deploy usando o console da VM:
++
+.. Selecione a aba *Console* para acessar o shell de configuração do host ESXi e monitorar o processo de power on.
+.. Aguarde o seguinte prompt:
++
+Nome do host :
+
+.. Digite o nome do host e selecione *Enter*.
+.. Aguarde o seguinte prompt:
++
+Forneça uma senha para o usuário admin:
+
+.. Digite a senha e selecione *Enter*.
+.. Aguarde o seguinte prompt:
++
+Usar DHCP para definir informações de rede? [n]:
+
+.. Digite *n* para definir uma configuração de IP estático ou *y* para usar o DHCP e selecione *Enter*.
+.. Se você escolher uma configuração estática, forneça todas as informações de configuração de rede necessárias.
+
+
+
+
+--
+.KVM
+--
+. Faça login na CLI no servidor Linux:
++
+[listing]
+----
+ssh root@<ip_address>
+----
+. Crie um novo diretório e extraia a imagem bruta da máquina virtual:
++
+[listing]
+----
+mkdir /home/select_deploy25
+cd /home/select_deploy25
+mv /root/<file_name> .
+tar -xzvf <file_name>
+----
+. Crie e inicie a máquina virtual KVM executando o utilitário de administração Deploy:
++
+[listing]
+----
+virt-install --name=select-deploy --vcpus=2 --ram=4096 --os-variant=debian10 --controller=scsi,model=virtio-scsi --disk path=/home/deploy/ONTAPdeploy.raw,device=disk,bus=scsi,format=raw --network "type=bridge,source=ontap-br,model=virtio,virtualport_type=openvswitch" --console=pty --import --noautoconsole
+----
+. Caso necessário, você pode configurar a rede Deploy usando o console da VM:
++
+.. Conecte-se ao console da máquina virtual:
++
+[listing]
+----
+virsh console <vm_name>
+----
+.. Aguarde o seguinte prompt:
++
+[listing]
+----
+Host name :
+----
+.. Digite o nome do host e selecione *Enter*.
+.. Aguarde o seguinte prompt:
++
+[listing]
+----
+Use DHCP to set networking information? [n]:
+----
+.. Digite *n* para definir uma configuração de IP estático ou *y* para usar o DHCP e selecione *Enter*.
+.. Se optar por uma configuração estática, forneça todas as informações de configuração de rede conforme necessário.
+
+
+
+
+--
+====
+
+
+[[step-4-sign-in-to-the-deploy-web-interface]]
+== Etapa 4: faça login na interface web do Deploy
+
+Faça login na interface de usuário da web para confirmar se o utilitário Deploy está disponível e realizar a configuração inicial.
+
+.Passos
+. Acesse o utilitário Deploy pelo navegador usando o endereço IP ou o nome de domínio:
++
+`\https://<ip_address>/`
+
+. Forneça o nome da conta de administrador (admin) e a senha, e faça login.
+. Se a janela pop-up *Bem-vindo ao ONTAP Select* for exibida, revise os pré-requisitos e selecione *OK* para continuar.
+. Se esta for a primeira vez que você acessa o sistema e não instalou o Deploy usando o assistente disponível com vCenter, forneça as seguintes informações de configuração quando solicitado:
++
+** Nova senha para a conta de administrador (obrigatória)
+** AutoSupport (opcional)
+** vCenter server com credenciais de conta (opcional)
+
+
+
+
+.Próximas etapas:
+link:task_deploy_cluster.html["Implante um cluster ONTAP Select"]
+
+.Informações relacionadas
+* link:task_cli_signing_in.html["Saiba como fazer login no Deploy usando SSH"]
+* link:deploy-evaluation-ontap-select-ovf-template.html["Saiba mais sobre como implantar uma instância de avaliação de 90 dias de um cluster ONTAP Select"]
+

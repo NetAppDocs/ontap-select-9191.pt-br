@@ -1,0 +1,45 @@
+---
+sidebar: sidebar 
+permalink: concept_nw_supported_configs.html 
+keywords: ontap select, supported network configurations 
+summary: Selecione o melhor hardware e configure sua rede para otimizar o desempenho e a resiliência. 
+---
+= Configurações de rede ONTAP Select suportadas
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Selecione o melhor hardware e configure sua rede para otimizar o desempenho e a resiliência.
+
+Os fornecedores de servidores entendem que os clientes têm necessidades diferentes e que a escolha é fundamental. Consequentemente, ao adquirir um servidor físico, existem inúmeras opções disponíveis ao tomar decisões relacionadas à conectividade de rede. A maioria dos sistemas comerciais é fornecida com diversas opções de NICs que oferecem opções de porta única e multiportas com diferentes combinações de velocidade e taxa de transferência. Isso inclui suporte para adaptadores de 25Gb/s e 40Gb/s NIC com VMware ESX.
+
+Como o desempenho da ONTAP Select VM está diretamente ligado às características do hardware subjacente, aumentar a taxa de transferência para a VM selecionando NICs de maior velocidade resulta em um cluster com melhor desempenho e uma experiência geral aprimorada para o usuário. Quatro NICs de 10 Gb ou duas NICs de maior velocidade (25/40 Gb/s) podem ser usadas para obter um layout de rede de alto desempenho. Diversas outras configurações também são suportadas. Para clusters de dois nós, são suportadas 4 portas de 1 Gb ou 1 porta de 10 Gb. Para clusters de nó único, são suportadas 2 portas de 1 Gb.
+
+.Configurações mínimas e recomendadas de rede
+Existem várias configurações de Ethernet suportadas, dependendo do tamanho do cluster.
+
+[cols="30,35,35"]
+|===
+| Tamanho do cluster | Requisitos mínimos | Recomendação 
+
+
+| Cluster de nó único | 2 x 1GbE | 2 x 10GbE 
+
+
+| Cluster de dois nós ou MetroCluster SDS | 4 x 1GbE ou 1 x 10GbE | 2 x 10GbE 
+
+
+| Cluster de quatro, seis, oito, dez ou doze nós | 2 x 10GbE | 4 x 10GbE ou 2 x 25/40GbE 
+|===
+
+NOTE: A conversão entre topologias de link único e de múltiplos links em um cluster em execução não é suportada devido à possível necessidade de conversão entre diferentes configurações de agregação de NIC exigidas para cada topologia.
+
+.Configuração de rede usando vários switches físicos
+Quando houver hardware suficiente disponível, a NetApp recomenda usar a configuração com múltiplos switches mostrada na figura a seguir, devido à proteção adicional contra falhas físicas dos switches.
+
+image:BP_02.jpg["Configuração de rede usando vários switches físicos"]

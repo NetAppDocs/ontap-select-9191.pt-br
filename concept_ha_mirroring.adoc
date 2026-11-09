@@ -1,0 +1,87 @@
+---
+sidebar: sidebar 
+permalink: concept_ha_mirroring.html 
+keywords: ontap select, ha, high availability, synchronous replication, mirrored aggregates, write path, raid syncmirror, rsm 
+summary: 'Evite perda de dados usando RAID SyncMirror (RSM), agregados espelhados e o caminho de gravação.' 
+---
+= ONTAP Select HA RSM e agregados espelhados
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Evite perda de dados usando RAID SyncMirror (RSM), agregados espelhados e o caminho de gravação.
+
+
+
+[[synchronous-replication]]
+== Replicação síncrona
+
+O modelo de HA do ONTAP é baseado no conceito de parceiros de HA. ONTAP Select estende essa arquitetura para o mundo dos servidores como commodity não compartilhados, utilizando a funcionalidade RAID SyncMirror (RSM) presente no ONTAP para replicar blocos de dados entre nós do cluster, fornecendo duas cópias dos dados de usuário distribuídas em um par de HA.
+
+Um cluster de dois nós com um mediador pode abranger dois data centers. Para obter mais informações, consulte a seção link:reference_plan_best_practices.html#two-node-stretched-ha-metrocluster-sds-best-practices["Melhores práticas para HA estendida de dois nós (MetroCluster SDS)"].
+
+
+
+[[mirrored-aggregates]]
+== Agregados espelhados
+
+Um ONTAP Select cluster é composto de dois a doze nós. Cada par de HA contém duas cópias dos dados de usuário, espelhadas de forma síncrona entre os nós por meio de uma rede IP. Esse espelhamento é transparente para o usuário e é uma propriedade do agregado de dados, que é configurado automaticamente durante o processo de criação do agregado de dados.
+
+Todos os agregados em um cluster ONTAP Select devem ser espelhados para disponibilidade de dados em caso de failover de nó e para evitar um SPOF em caso de falha de hardware. Os agregados em um cluster ONTAP Select são construídos a partir de discos virtuais fornecidos por cada nó no par de HA e utilizam os seguintes discos:
+
+* Um conjunto local de discos (contribuído pelo nó ONTAP Select atual)
+* Um conjunto espelhado de discos (contribuído pelo par de HA do nó atual)
+
+
+
+NOTE: Os discos locais e espelho usados para construir um agregado espelhado devem ter o mesmo tamanho. Esses agregados são chamados de plex 0 e plex 1 (para indicar os pares de espelho local e remoto, respectivamente). Os números de plex reais podem ser diferentes na sua instalação.
+
+Essa abordagem é fundamentalmente diferente da forma como os clusters ONTAP padrão funcionam. Isso se aplica a todos os discos raiz e de dados dentro do cluster ONTAP Select. O agregado contém cópias locais e espelhadas dos dados. Portanto, um agregado que contém N discos virtuais oferece N/2 discos de armazenamento exclusivo, porque a segunda cópia dos dados reside em seus próprios discos exclusivos.
+
+A figura a seguir mostra um par de HA em um cluster de quatro nós ONTAP Select. Dentro desse cluster, há um único agregado (teste) que utiliza storage de ambos os parceiros de HA. Esse agregado de dados é composto por dois conjuntos de discos virtuais: um conjunto local, contribuído pelo nó de cluster ONTAP Select (Plex 0), e um conjunto remoto, contribuído pelo parceiro de failover (Plex 1).
+
+O Plex 0 é o bucket que contém todos os discos locais. O Plex 1 é o bucket que contém os discos espelho, ou seja, os discos responsáveis por armazenar uma segunda cópia replicada dos dados de usuário. O nó que possui o agregado contribui com discos para o Plex 0, e o parceiro de HA desse nó contribui com discos para o Plex 1.
+
+Na figura a seguir, há um agregado espelhado com dois discos. O conteúdo desse agregado é espelhado entre os dois nós do cluster, com o disco local NET-1.1 alocado no bucket Plex 0 e o disco remoto NET-2.1 alocado no bucket Plex 1. Neste exemplo, o agregado test pertence ao nó de cluster à esquerda e utiliza o disco local NET-1.1 e o disco do par de HA espelhado NET-2.1.
+
+*ONTAP Select agregado espelhado*image:DDHA_03.jpg["ONTAP Select agregado espelhado"]
+
+
+NOTE: Quando um cluster ONTAP Select é implementado, todos os discos virtuais presentes no sistema são automaticamente atribuídos ao plex correto, sem exigir nenhuma ação adicional do usuário em relação à atribuição de discos. Isso evita a atribuição acidental de discos a um plex incorreto e proporciona uma configuração ideal de espelhamento de discos.
+
+
+
+[[write-path]]
+== Caminho de gravação
+
+O espelhamento síncrono de blocos de dados entre nós do cluster e a exigência de que não haja perda de dados em caso de falha do sistema têm um impacto significativo no caminho percorrido por uma gravação recebida ao se propagar por um cluster ONTAP Select. Esse processo consiste em duas etapas:
+
+* Reconhecimento
+* Destaging
+
+
+As gravações em um volume de destino ocorrem por meio de uma LIF de dados e são confirmadas na partição NVRAM virtualizada, presente em um disco de sistema do nó ONTAP Select, antes de serem reconhecidas de volta ao cliente. Em uma configuração de par de HA, ocorre uma etapa adicional, pois essas gravações na NVRAM são imediatamente espelhadas para o parceiro de HA do proprietário do volume de destino antes de serem reconhecidas. Esse processo garante a consistência do sistema de arquivos no nó parceiro de HA, caso ocorra uma falha de hardware no nó original.
+
+Após a gravação ser confirmada na NVRAM, ONTAP move periodicamente o conteúdo dessa partição para o disco virtual apropriado, um processo conhecido como destaging. Esse processo ocorre apenas uma vez, no nó de cluster que possui o volume de destino, e não ocorre no parceiro de HA.
+
+A figura a seguir mostra o caminho de escrita de uma solicitação de escrita recebida em um nó ONTAP Select.
+
+*ONTAP Select fluxo de trabalho do caminho de gravação* image:DDHA_04.jpg["Fluxo de trabalho do caminho de gravação do ONTAP Select"]
+
+A confirmação de escrita recebida inclui as seguintes etapas:
+
+* As gravações entram no sistema por meio de uma interface lógica pertencente ao nó A do ONTAP Select.
+* As gravações são confirmadas na NVRAM do nó A e espelhadas para o parceiro de HA, nó B.
+* Após a solicitação de E/S estar presente em ambos os nós de HA, a solicitação é então confirmada ao cliente.
+
+
+O destaging do ONTAP Select da NVRAM para o agregado de dados (ONTAP CP) inclui as seguintes etapas:
+
+* As gravações são transferidas da NVRAM virtual para o agregado de dados virtual.
+* O mecanismo de espelhamento replica os blocos de forma síncrona para ambos os plexos.
+

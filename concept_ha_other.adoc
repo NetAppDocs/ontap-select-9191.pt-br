@@ -1,0 +1,77 @@
+---
+sidebar: sidebar 
+permalink: concept_ha_other.html 
+keywords: ontap select, ha, high availability, disk heartbeating, heartbeating, mailbox, failover, giveback 
+summary: HA disk heartbeating, HA mailbox, HA heartbeating, HA Failover e Giveback trabalham em conjunto para aprimorar a proteção de dados. 
+---
+= Aprimoramentos na proteção de dados com o ONTAP Select HA
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+A alta disponibilidade (HA) disk heartbeating, HA mailbox, HA heartbeating, HA Failover e Giveback trabalham para aprimorar a proteção de dados.
+
+
+
+[[disk-heartbeating]]
+== Batimento cardíaco do disco
+
+Embora a arquitetura ONTAP Select HA aproveite muitos dos caminhos de código usados pelos arrays FAS tradicionais, existem algumas exceções. Uma dessas exceções está na implementação do heartbeating baseado em disco, um método de comunicação não baseado em rede usado pelos nós de cluster para evitar que o isolamento de rede cause comportamento de split-brain. Um cenário de split-brain é o resultado do particionamento do cluster, normalmente causado por falhas de rede, em que cada lado acredita que o outro está inativo e tenta assumir o controle dos recursos do cluster.
+
+Implementações de alta disponibilidade (HA) de nível empresarial devem lidar com esse tipo de cenário de forma adequada. ONTAP faz isso por meio de um método personalizado de heartbeating baseado em disco. Essa é a função da HA mailbox, um local no storage físico usado pelos nós do cluster para enviar mensagens de heartbeat. Isso ajuda o cluster a determinar a conectividade e, portanto, a definir o quorum em caso de failover.
+
+Em FAS arrays, que utilizam uma arquitetura de interconexão HA de storage compartilhado, o ONTAP resolve problemas de split-brain das seguintes maneiras:
+
+* Reservas persistentes SCSI
+* Metadados persistentes de HA
+* Estado HA enviado pela interconexão HA
+
+
+No entanto, na arquitetura de nada compartilhado de um cluster ONTAP Select, um nó só consegue ver seu próprio storage local e não o do parceiro de HA. Portanto, quando o particionamento de rede isola cada lado de um par de HA, os métodos anteriores para determinar o quorum do cluster e o comportamento de failover ficam indisponíveis.
+
+Embora o método existente de detecção e prevenção de split-brain não possa ser utilizado, ainda é necessário um método de mediação que se adeque às restrições de um ambiente sem compartilhamento de recursos. ONTAP Select amplia ainda mais a infraestrutura de mailbox existente, permitindo que ela atue como um método de mediação em caso de particionamento de rede. Como o storage compartilhado não está disponível, a mediação é realizada por meio do acesso aos discos de mailbox via NAS. Esses discos são distribuídos por todo o cluster, incluindo o mediador em um cluster de dois nós, utilizando o protocolo iSCSI. Portanto, decisões inteligentes de failover podem ser tomadas por um nó de cluster com base no acesso a esses discos. Se um nó puder acessar os discos de mailbox de outros nós fora de seu parceiro de HA, é provável que esteja ativo e íntegro.
+
+
+NOTE: A arquitetura de caixa de correio e o método de pulsação baseado em disco para resolver problemas de quorum e split-brain do cluster são os motivos pelos quais a variante multi-nó do ONTAP Select requer quatro nós separados ou um mediador para um cluster de dois nós.
+
+
+
+[[ha-mailbox-posting]]
+== Postagem na caixa de correio HA
+
+A arquitetura de caixa de correio de alta disponibilidade (HA) utiliza um modelo de postagem de mensagens. Em intervalos repetidos, os nós do cluster postam mensagens para todos os outros discos de caixa de correio do cluster, incluindo o mediador, informando que o nó está ativo e em funcionamento. Dentro de um cluster íntegro, a qualquer momento, um único disco de caixa de correio em um nó de cluster tem mensagens postadas por todos os outros nós do cluster.
+
+Anexado a cada nó de cluster Select está um disco virtual usado especificamente para acesso compartilhado à caixa de correio. Este disco é chamado de disco de caixa de correio mediador, pois sua principal função é atuar como um método de mediação do cluster em caso de falhas de nós ou particionamento de rede. Este disco de caixa de correio contém partições para cada nó de cluster e é montado em uma rede iSCSI por outros nós de cluster Select. Periodicamente, esses nós publicam os status de integridade na partição apropriada do disco de caixa de correio. O uso de discos de caixa de correio acessíveis pela rede, distribuídos por todo o cluster, permite inferir a integridade dos nós por meio de uma matriz de acessibilidade. Por exemplo, os nós de cluster A e B podem publicar na caixa de correio do nó de cluster D, mas não na caixa de correio do nó C. Além disso, o nó de cluster D não pode publicar na caixa de correio do nó C, portanto, é provável que o nó C esteja inativo ou isolado da rede e deva ser assumido.
+
+
+
+[[ha-heartbeating]]
+== Heartbeating de HA
+
+Assim como nas plataformas FAS da NetApp, o ONTAP Select envia periodicamente mensagens de pulsação de HA pela interconexão HA. Dentro do cluster ONTAP Select, isso é realizado por meio de uma conexão de rede TCP/IP existente entre os parceiros de HA. Além disso, mensagens de pulsação baseadas em disco são enviadas para todos os discos de mailbox de HA, incluindo os discos de mailbox do mediador. Essas mensagens são transmitidas a cada poucos segundos e lidas periodicamente. A frequência com que essas mensagens são enviadas e recebidas permite que o cluster ONTAP Select detecte eventos de falha de HA em aproximadamente 15 segundos, a mesma janela disponível nas plataformas FAS. Quando as mensagens de pulsação deixam de ser lidas, um evento de failover é acionado.
+
+A figura a seguir mostra o processo de envio e recebimento de mensagens de pulsação (heartbeat) através da interconexão HA e dos discos mediadores, da perspectiva de um único nó de cluster ONTAP Select, o nó C.
+
+
+NOTE: Os sinais de pulsação da rede são enviados pela interconexão HA para o parceiro de HA, nó D, enquanto os sinais de pulsação do disco usam discos de caixa de correio em todos os nós do cluster, A, B, C e D.
+
+*Sinalização de alta disponibilidade em um cluster de quatro nós: estado estável*image:DDHA_05.jpg["Pulsação HA em um cluster de quatro nós: estado estacionário"]
+
+
+
+[[ha-failover-and-giveback]]
+== Failover de HA e giveback
+
+Durante uma operação de failover, o nó sobrevivente assume as responsabilidades de fornecimento de dados para o seu nó par, utilizando a cópia local dos dados do seu parceiro de HA. As operações de E/S do cliente podem continuar sem interrupção, mas as alterações nesses dados devem ser replicadas de volta antes que o giveback possa ocorrer. Observe que ONTAP Select não suporta um giveback forçado, pois isso causa a perda das alterações armazenadas no nó sobrevivente.
+
+A operação de sincronização reversa é acionada automaticamente quando o nó reiniciado retorna ao cluster. O tempo necessário para a sincronização reversa depende de vários fatores. Esses fatores incluem o número de alterações que precisam ser replicadas, a latência de rede entre os nós e a velocidade dos subsistemas de disco em cada nó. É possível que o tempo necessário para a sincronização reversa exceda o intervalo de giveback automático de 10 minutos. Nesse caso, um giveback manual após a sincronização reversa será necessário. O progresso da sincronização reversa pode ser monitorado usando o seguinte comando:
+
+[listing]
+----
+storage aggregate status -r -aggregate <aggregate name>
+----

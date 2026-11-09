@@ -1,0 +1,24 @@
+---
+sidebar: sidebar 
+permalink: task_cli_security.html 
+keywords: administer, administering, cli, security 
+summary: Existem diversas tarefas relacionadas que você pode executar como parte da proteção de uma implantação do ONTAP Select. 
+---
+= Proteja uma implantação do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Você pode proteger uma implementação do ONTAP Select alterando a senha da conta de administrador da máquina virtual de implantação conforme necessário, usando a interface de linha de comando.
+
+.Passos
+. Faça login na CLI do utilitário Deploy usando a conta de administrador.
+. Altere a senha:
+`password modify`
+. Responda a todas as solicitações de acordo com o seu ambiente.
+

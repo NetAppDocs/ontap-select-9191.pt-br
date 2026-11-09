@@ -1,0 +1,289 @@
+---
+sidebar: sidebar 
+permalink: task_adm_security.html 
+keywords: administer, administering, web, security 
+summary: Existem diversas tarefas relacionadas que você pode executar como parte da proteção de uma implantação do ONTAP Select. 
+---
+= Proteja uma implantação do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Existem diversas tarefas relacionadas que você pode executar como parte da proteção de uma implantação do ONTAP Select.
+
+
+
+[[change-the-deploy-administrator-password]]
+== Alterar a senha do administrador de Deploy
+
+Você pode alterar a senha da conta de administrador da máquina virtual Deploy conforme necessário, usando a interface de usuário web.
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione o ícone de figura no canto superior direito da página e, em seguida, selecione *Alterar senha*.
+. Forneça a senha atual e a nova senha conforme solicitado e selecione *Enviar*.
+
+
+
+
+[[add-a-management-server-account]]
+== Adicionar uma conta de servidor de gerenciamento
+
+Você pode adicionar uma conta de servidor de gerenciamento ao banco de dados de armazenamento de credenciais do Deploy.
+
+.Antes de começar
+Você deve estar familiarizado com os tipos de credenciais e como elas são usadas pelo ONTAP Select Deploy.
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Administração* na parte superior da página.
+. Selecione *Servidores de Gerenciamento* > *Adicionar vCenter*.
+. Insira as seguintes informações e selecione *Adicionar*.
++
+[cols="30,70"]
+|===
+| Neste campo… | Faça o seguinte… 
+
+
+| Nome/Endereço IP | Forneça o nome de domínio ou endereço IP do servidor vCenter. 
+
+
+| Nome de usuário | Digite o nome de usuário da conta para acessar vCenter. 
+
+
+| Senha | Digite a senha para o nome de usuário associado. 
+|===
+. Opcionalmente, selecione image:icon_kebab.gif["Opções"] após a adição do novo servidor de gerenciamento, e então selecione uma das seguintes opções:
++
+** Atualizar credenciais
+** Verificar credenciais
+** Remover servidor de gerenciamento
+
+
+
+
+
+
+[[configure-mfa]]
+== Configurar MFA
+
+A partir do ONTAP Select 9.13.1, a autenticação multifator (MFA) é compatível com a conta de administrador do ONTAP Select Deploy:
+
+* link:task_adm_security.html#ontap-select-deploy-cli-mfa-login-using-yubikey-piv-or-fido2-authentication["Login MFA da CLI ONTAP Select Deploy usando YubiKey Personal Identity Verification (PIV) ou Fast IDentity Online (FIDO2) autenticação"]
+* <<ONTAP Select Deploy CLI login MFA usando ssh-keygen>>
+
+
+
+
+[[ontap-select-deploy-cli-mfa-login-using-yubikey-piv-or-fido2-authentication]]
+== ONTAP Select Deploy CLI login MFA usando YubiKey PIV ou FIDO2 autenticação
+
+
+
+[[yubikey-piv]]
+=== YubiKey PIV
+
+Configure o PIN do YubiKey e gere ou importe a chave privada e o certificado do Agente de Suporte Remoto (RSA) ou do Algoritmo de Assinatura Digital de Curva Elíptica (ECDSA) com as etapas em link:https://docs.netapp.com/us-en/ontap-technical-reports/security.html#multifactor-authentication["TR-4647: autenticação multifator no ONTAP"^].
+
+* Para Windows: A seção *YubiKey PIV Client configuration for Windows* do relatório técnico.
+* Para MacOS: A seção *YubiKey PIV client configuration For MAC OS and Linux* do relatório técnico.
+
+
+
+
+[[fido2]]
+=== FIDO2
+
+Se optar pela autenticação FIDO2 do YubiKey, configure o PIN FIDO2 do YubiKey usando o YubiKey Manager e gere a chave FIDO2 com um PuTTY-CAC (Common Access Card) para Windows ou ssh-keygen para MacOS. Os passos para isso estão no relatório técnico link:https://docs.netapp.com/us-en/ontap-technical-reports/security.html#multifactor-authentication["TR-4647: autenticação multifator no ONTAP"^].
+
+* Para Windows: A seção *YubiKey FIDO2 configuração do cliente para Windows* do relatório técnico.
+* Para MacOS: A seção *YubiKey configuração do cliente FIDO2 para Mac OS e Linux* do relatório técnico.
+
+
+
+
+[[obtain-the-yubikey-piv-or-fido2-public-key]]
+=== Obtenha a chave pública PIV ou FIDO2 da YubiKey
+
+A obtenção da chave pública depende de você ser um cliente Windows ou MacOS e se estiver usando PIV ou FIDO2.
+
+.Para Windows:
+* Exporte a chave pública PIV usando o recurso *Copiar para a área de transferência* em SSH → Certificado, conforme descrito na seção *Configurando o cliente SSH PuTTY-CAC do Windows para YubiKey PIV autenticação* na página 16 do TR-4647.
+* Exporte a chave pública FIDO2 usando o recurso *Copiar para a área de transferência* em SSH → Certificado, conforme descrito na seção *Configurando o cliente SSH PuTTY-CAC do Windows para YubiKey FIDO2 autenticação* na página 30 do TR-4647.
+
+
+.Para MacOS:
+* A chave pública PIV deve ser exportada usando o comando  `ssh-keygen -e` conforme descrito na seção *Configurar o cliente SSH do Mac OS ou Linux para autenticação PIV do YubiKey* na página 24 do TR-4647.
+* A chave pública FIDO2 está no  `id_ecdsa_sk.pub` arquivo ou  `id_edd519_sk.pub` arquivo, dependendo se você usa ECDSA ou EDD519, conforme descrito na seção *Configurar o cliente SSH do MAC OS ou Linux para autenticação FIDO2 do YubiKey* na página 39 do TR-4647.
+
+
+
+
+[[configure-the-public-key-in-ontap-select-deploy]]
+== Configure a chave pública no ONTAP Select Deploy
+
+O SSH é usado pela conta de administrador para o método de autenticação por chave pública. O comando utilizado é o mesmo, seja o método de autenticação o padrão de autenticação por chave pública SSH ou YubiKey PIV ou autenticação FIDO2.
+
+Para autenticação multifator (MFA) SSH baseada em hardware, os fatores de autenticação, além da chave pública configurada no ONTAP Select Deploy, são os seguintes:
+
+* O PIN PIV ou FIDO2
+* Posse do dispositivo de hardware YubiKey. Para FIDO2, isso é confirmado ao tocar fisicamente o YubiKey durante o processo de autenticação.
+
+
+.Antes de começar
+Defina a chave pública PIV ou FIDO2 que está configurada para o YubiKey. O comando ONTAP Select Deploy CLI `security publickey add -key` é o mesmo para PIV ou FIDO2 e a string da chave pública é diferente.
+
+A chave pública é obtida a partir de:
+
+* A função *Copiar para a área de transferência* para PuTTY-CAC para PIV e FIDO2 (Windows)
+* Exportando a chave pública em um formato compatível com SSH usando o comando  `ssh-keygen -e` para PIV
+* O arquivo de chave pública localizado no  `~/.ssh/id_***_sk.pub` arquivo para FIDO2 (MacOS)
+
+
+.Passos
+. Localize a chave gerada no arquivo `.ssh/id_***.pub`.
+. Adicione a chave gerada ao ONTAP Select Deploy usando o comando  `security publickey add -key <key>`.
++
+[listing]
+----
+(ONTAPdeploy) security publickey add -key "ssh-rsa <key> user@netapp.com"
+----
+. Habilite a autenticação MFA com o comando  `security multifactor authentication enable`.
++
+[listing]
+----
+(ONTAPdeploy) security multifactor authentication enable
+MFA enabled Successfully
+----
+
+
+
+
+[[log-in-to-ontap-select-deploy-using-yubikey-piv-authentication-over-ssh]]
+== Faça login no ONTAP Select Deploy usando a autenticação PIV do YubiKey via SSH
+
+Você pode fazer login no ONTAP Select Deploy usando YubiKey autenticação PIV via SSH.
+
+.Passos
+. Após a configuração do token YubiKey, do cliente SSH e do ONTAP Select Deploy, você pode usar a autenticação PIV YubiKey MFA via SSH.
+. Faça login no ONTAP Select Deploy. Se você estiver usando o cliente SSH PuTTY-CAC do Windows, uma caixa de diálogo será exibida solicitando que você insira seu PIN do YubiKey.
+. Faça login a partir do seu dispositivo com o YubiKey conectado.
+
+
+.Exemplo de saída:
+[listing]
+----
+login as: admin
+Authenticating with public key "<public_key>"
+Further authentication required
+<admin>'s password:
+
+NetApp ONTAP Select Deploy Utility.
+Copyright (C) NetApp Inc.
+All rights reserved.
+
+Version: NetApp Release 9.13.1 Build:6811765 08-17-2023 03:08:09
+
+(ONTAPdeploy)
+----
+
+
+[[ontap-select-deploy-cli-mfa-login-using-ssh-keygen]]
+== ONTAP Select Deploy CLI login MFA usando ssh-keygen
+
+O comando  `ssh-keygen` é uma ferramenta para criar novos pares de chave de autenticação para SSH. Os pares de chaves são usados para automatizar logins, single sign-on e para autenticar hosts.
+
+O  `ssh-keygen`comando suporta diversos algoritmos de chave pública para chaves de autenticação.
+
+* O algoritmo é selecionado com a  `-t` opção
+* O tamanho da chave é selecionado com a  `-b` opção
+
+
+.Exemplo de saída:
+[listing]
+----
+ssh-keygen -t ecdsa -b 521
+ssh-keygen -t ed25519
+ssh-keygen -t ecdsa
+----
+.Passos
+. Localize a chave gerada no arquivo `.ssh/id_***.pub`.
+. Adicione a chave gerada ao ONTAP Select Deploy usando o comando  `security publickey add -key <key>`.
++
+[listing]
+----
+(ONTAPdeploy) security publickey add -key "ssh-rsa <key> user@netapp.com"
+----
+. Habilite a autenticação MFA com o comando  `security multifactor authentication enable`.
++
+[listing]
+----
+(ONTAPdeploy) security multifactor authentication enable
+MFA enabled Successfully
+----
+. Faça login no sistema ONTAP Select Deploy após habilitar a MFA. Você deverá receber uma saída semelhante ao exemplo a seguir.
++
+[listing]
+----
+[<user ID> ~]$ ssh <admin>
+Authenticated with partial success.
+<admin>'s password:
+
+NetApp ONTAP Select Deploy Utility.
+Copyright (C) NetApp Inc.
+All rights reserved.
+
+Version: NetApp Release 9.13.1 Build:6811765 08-17-2023 03:08:09
+
+(ONTAPdeploy)
+----
+
+
+
+
+[[migrate-from-mfa-to-single-factor-authentication]]
+=== Migre da autenticação multifator (MFA) para a autenticação de fator único
+
+A autenticação multifator (MFA) pode ser desativada para a conta de administrador do Deploy usando os seguintes métodos:
+
+* Se você conseguir acessar a CLI do Deploy como administrador usando Secure Shell (SSH), desative a MFA executando o  `security multifactor authentication disable` comando na CLI do Deploy.
++
+[listing]
+----
+(ONTAPdeploy) security multifactor authentication disable
+MFA disabled Successfully
+----
+* Se você não conseguir fazer login na Deploy CLI como administrador usando SSH:
++
+.. Conecte-se ao console de vídeo da máquina virtual (VM) de Deploy através do vCenter ou vSphere.
+.. Faça login na CLI de implantação usando a conta de administrador.
+.. Execute o comando  `security multifactor authentication disable`.
++
+[listing]
+----
+Debian GNU/Linux 11 <user ID> tty1
+
+<hostname> login: admin
+Password:
+
+NetApp ONTAP Select Deploy Utility.
+Copyright (C) NetApp Inc.
+All rights reserved.
+
+Version: NetApp Release 9.13.1 Build:6811765 08-17-2023 03:08:09
+
+(ONTAPdeploy) security multifactor authentication disable
+MFA disabled successfully
+
+(ONTAPdeploy)
+----
+
+
+* O administrador pode excluir a chave pública com:
+`security publickey delete -key`
+

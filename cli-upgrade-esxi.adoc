@@ -1,0 +1,242 @@
+---
+sidebar: sidebar 
+permalink: cli-upgrade-esxi.html 
+keywords: administer, administering, cli, esxi, upgrade, esxi 8.0 
+summary: Se você estiver executando ONTAP Select no VMware ESXi, poderá atualizar o software ESXi de uma versão anterior compatível para o ESXi 8.0 ou posterior. Antes de atualizar, você deve compreender o processo e selecionar o procedimento de atualização adequado. 
+---
+= Atualize para o VMware ESXi 8.0 ou posterior para ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Se você estiver executando ONTAP Select no VMware ESXi, poderá atualizar o software ESXi de uma versão anterior compatível para o ESXi 8.0 ou posterior. Antes de atualizar, você deve compreender o processo e selecionar o procedimento de atualização adequado.
+
+
+
+[[prepare-to-upgrade-vmware-esxi]]
+== Prepare-se para atualizar o VMware ESXi
+
+Prepare e selecione o procedimento de atualização mais adequado ao seu ambiente antes de atualizar o software ESXi nos hipervisores que hospedam um cluster ONTAP Select.
+
+.Passos
+. *Familiarize-se com o processo de atualização do VMware ESXi*
++
+A atualização do software ESXi é um processo descrito e suportado pela VMware. O processo de atualização do hipervisor faz parte do procedimento de atualização mais amplo ao usar ONTAP Select. Consulte a documentação da VMware para obter mais informações.
+
+. *Selecione um procedimento de atualização*
++
+Existem vários procedimentos de atualização disponíveis. Você deve selecionar o procedimento aplicável com base nos seguintes critérios:
+
++
+** Tamanho do cluster ONTAP Select
++
+São suportados clusters de nó único e de múltiplos nós.
+
+** Utilização do ONTAP Select Deploy
++
+A atualização é possível tanto com quanto sem o utilitário Deploy.
+
++
+
+TIP: Você deve selecionar um procedimento de atualização que utilize o utilitário de administração Deploy.
+
++
+A atualização do ESXi utilizando o utilitário de administração Deploy é a opção mais geral e resiliente. No entanto, pode haver casos em que o Deploy esteja indisponível ou não possa ser utilizado. Por exemplo, a atualização para o ESXi 8.0 não é suportada em versões anteriores do ONTAP Select e do utilitário de administração Deploy.
+
++
+Se você estiver usando essas versões anteriores e tentar uma atualização, poderá deixar a máquina virtual ONTAP Select em um estado em que não poderá ser inicializada. Nesse caso, você deve selecionar um procedimento de atualização que não utilize Deploy.
+
+
+
+. *Atualize o utilitário de administração do Deploy*
++
+Antes de executar um procedimento de atualização usando o utilitário Deploy, talvez seja necessário atualizar sua instância do Deploy. Em geral, você deve atualizar para a versão mais recente do Deploy. O utilitário Deploy deve ser compatível com a versão do ONTAP Select que você está usando. Consulte o link:reference_release_notes.html["Notas de lançamento do ONTAP Select"] para mais informações.
+
+. *Após a conclusão do procedimento de atualização*
++
+Se você selecionar um procedimento de atualização que utilize o utilitário Deploy, deverá executar uma operação de atualização do cluster usando o Deploy após todos os nós terem sido atualizados. Consulte Atualizando a configuração do cluster Deploy para obter mais informações.
+
+
+
+
+
+[[upgrade-a-single-node-cluster-using-deploy]]
+== Atualize um cluster de nó único usando o Deploy
+
+Você pode usar o utilitário de administração Deploy como parte do procedimento para atualizar o hipervisor VMware ESXi que hospeda um ONTAP Select cluster de nó único.
+
+.Passos
+. Faça login na CLI do utilitário Deploy usando SSH com a conta de administrador.
+. Mova o nó para o estado offline:
++
+[source, cli]
+----
+node stop --cluster-name <cluster_name> --node-name <node_name>
+----
+. Atualize o host do hipervisor onde o ONTAP Select está em execução para ESXi 8.0 ou posterior, utilizando o procedimento fornecido pela VMware.
+. Mova o nó para o estado online:
++
+[source, cli]
+----
+node start --cluster-name <cluster_name> --node-name <node_name>
+----
+. Após o nó entrar em funcionamento, verifique se o cluster está íntegro.
++
+Exemplo:
+
++
+....
+ESX-1N::> cluster show
+Node           Health  Eligibility
+-------------- ------- ------------
+sdot-d200-011d true    true
+....
+
+
+.Depois que você terminar
+Você deve executar uma operação de atualização do cluster usando o utilitário de administração Deploy.
+
+
+
+[[upgrade-a-multi-node-cluster-using-deploy]]
+== Atualize um cluster de vários nós usando o Deploy
+
+Você pode usar o utilitário de administração Deploy como parte do procedimento para atualizar os hipervisores VMware ESXi que hospedam um cluster ONTAP Select de vários nós.
+
+.Sobre esta tarefa
+Você deve executar este procedimento de atualização para cada um dos nós do cluster, um nó por vez. Se o cluster contiver quatro ou mais nós, você deverá atualizar os nós em cada par de HA sequencialmente antes de prosseguir para o próximo par de HA.
+
+.Passos
+. Faça login na CLI do utilitário Deploy usando SSH com a conta de administrador.
+. Mova o nó para o estado offline:
++
+[source, cli]
+----
+node stop --cluster-name <cluster_name> --node-name <node_name>
+----
+. Atualize o host do hipervisor onde o ONTAP Select está em execução para ESXi 8.0 ou posterior, utilizando o procedimento fornecido pela VMware.
++
+Consulte a seção Preparando-se para atualizar o VMware ESXi para obter mais informações.
+
+. Mova o nó para o estado online:
++
+[source, cli]
+----
+node start --cluster-name <cluster_name> --node-name <node_name>
+----
+. Após o nó entrar em funcionamento, verifique se o storage failover está habilitado e se o cluster está íntegro.
++
+.Mostrar exemplo
+[%collapsible]
+====
+[listing]
+----
+ESX-2N_I2_N11N12::> storage failover show
+Takeover
+Node Partner Possible State Description
+-------------- -------------- -------- ---------------------------
+sdot-d200-011d sdot-d200-012d true Connected to sdot-d200-012d
+sdot-d200-012d sdot-d200-011d true Connected to sdot-d200-011d
+2 entries were displayed.
+ESX-2N_I2_N11N12::> cluster show
+Node Health Eligibility
+--------------------- ------- ------------
+sdot-d200-011d true true
+sdot-d200-012d true true
+2 entries were displayed.
+----
+====
+
+
+.Depois que você terminar
+Você deve executar o procedimento de atualização para cada host usado no cluster ONTAP Select. Após todos os hosts ESXi serem atualizados, você deve executar uma operação de atualização do cluster usando o utilitário de administração Deploy.
+
+
+
+[[upgrade-a-single-node-cluster-without-deploy]]
+== Atualize um cluster de nó único sem Deploy
+
+Você pode atualizar o hipervisor VMware ESXi que hospeda um cluster de nó único ONTAP Select sem usar o utilitário de administração Deploy.
+
+.Passos
+. Faça login na interface de linha de comando do ONTAP e interrompa o nó.
+. Utilizando o VMware vSphere, confirme se a máquina virtual ONTAP Select está desligada.
+. Atualize o host do hipervisor onde o ONTAP Select está em execução para ESXi 8.0 ou posterior, utilizando o procedimento fornecido pela VMware.
++
+Consulte a seção Preparando-se para atualizar o VMware ESXi para obter mais informações.
+
+. Utilizando o VMware vSphere, acesse vCenter e faça o seguinte:
++
+.. Adicione uma unidade de disquete à máquina virtual ONTAP Select.
+.. Ligue a máquina virtual ONTAP Select.
+.. Faça login na ONTAP CLI usando SSH com a conta de administrador.
+
+
+. Após o nó entrar em funcionamento, verifique se o cluster está íntegro.
++
+Exemplo:
+
++
+....
+ESX-1N::> cluster show
+Node           Health  Eligibility
+-------------- ------- ------------
+sdot-d200-011d true    true
+....
+
+
+.Depois que você terminar
+Você deve executar uma operação de atualização do cluster usando o utilitário de administração Deploy.
+
+
+
+[[upgrade-a-multi-node-cluster-without-deploy]]
+== Atualize um cluster de vários nós sem Deploy
+
+Você pode atualizar os hipervisores VMware ESXi que hospedam um cluster ONTAP Select de vários nós sem usar o utilitário de administração Deploy.
+
+.Sobre esta tarefa
+Você deve executar este procedimento de atualização para cada um dos nós do cluster, um nó por vez. Se o cluster contiver quatro ou mais nós, você deverá atualizar os nós em cada par de HA sequencialmente antes de prosseguir para o próximo par de HA.
+
+.Passos
+. Faça login na interface de linha de comando do ONTAP e interrompa o nó.
+. Utilizando o VMware vSphere, confirme se a máquina virtual ONTAP Select está desligada.
+. Atualize o host do hipervisor onde o ONTAP Select está em execução para ESXi 8.0 ou posterior, utilizando o procedimento fornecido pela VMware.
+. Utilizando o VMware vSphere, acesse vCenter e faça o seguinte:
++
+.. Adicione uma unidade de disquete à máquina virtual ONTAP Select.
+.. Ligue a máquina virtual ONTAP Select.
+.. Faça login na ONTAP CLI usando SSH com a conta de administrador.
+
+
+. Após o nó entrar em funcionamento, verifique se o storage failover está habilitado e se o cluster está íntegro.
++
+.Mostrar exemplo
+[%collapsible]
+====
+[listing]
+----
+ESX-2N_I2_N11N12::> storage failover show
+Takeover
+Node Partner Possible State Description
+-------------- -------------- -------- ---------------------------
+sdot-d200-011d sdot-d200-012d true Connected to sdot-d200-012d
+sdot-d200-012d sdot-d200-011d true Connected to sdot-d200-011d
+2 entries were displayed.
+ESX-2N_I2_N11N12::> cluster show
+Node Health Eligibility
+--------------------- ------- ------------
+sdot-d200-011d true true
+sdot-d200-012d true true
+2 entries were displayed.
+----
+====
+
+
+.Depois que você terminar
+Você deve executar o procedimento de atualização para cada host usado no cluster ONTAP Select.

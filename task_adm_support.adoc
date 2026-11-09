@@ -1,0 +1,112 @@
+---
+sidebar: sidebar 
+permalink: task_adm_support.html 
+keywords: administer, administering, web, diagnostics, support 
+summary: Existem diversas tarefas de diagnóstico e suporte relacionadas que você pode executar como parte da administração do ONTAP Select. 
+---
+= Gerencie os diagnósticos e o suporte do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Existem diversas tarefas de diagnóstico e suporte relacionadas que você pode executar como parte da administração do ONTAP Select.
+
+
+
+[[configure-the-deploy-system]]
+== Configurar o sistema de implantação
+
+Você deve definir os parâmetros básicos de configuração do sistema que afetam o funcionamento do utilitário Deploy.
+
+.Sobre esta tarefa
+Os dados de configuração do Deploy são usados por AutoSupport.
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Administração* na parte superior da página.
+. Selecione *Configurações e AutoSupport*, depois selecione image:icon_pencil.gif["Editar"].
+. Forneça os dados de configuração adequados ao seu ambiente e selecione *Modificar*.
++
+Se você utiliza um servidor proxy, pode configurar o URL do proxy da seguinte forma:
+`\http://USERNAME:PASSWORD@<FQDN|IP>:PORT`
+
++
+Exemplo
+`\http://user1:mypassword@proxy.company-demo.com:80`
+
+
+
+
+
+[[display-the-ontap-select-deploy-event-messages]]
+== Exibir as mensagens de evento do ONTAP Select Deploy
+
+O utilitário ONTAP Select Deploy inclui um recurso de registro de eventos que fornece informações sobre a atividade do sistema. Você deve visualizar o conteúdo do registro de eventos para depurar quaisquer problemas ou quando instruído a fazê-lo pelo suporte.
+
+.Sobre esta tarefa
+Você pode filtrar a lista de mensagens de eventos com base em diversas características, incluindo:
+
+* Status
+* Tipo
+* Categoria
+* Instância
+* Tempo
+* Descrição
+
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Administração* na parte superior da página.
+. Selecione *Eventos & Empregos* e, em seguida, selecione *Eventos*.
+. Opcionalmente, selecione *Filtrar* e crie um filtro para limitar as mensagens de evento exibidas.
+
+
+
+
+[[enable-autosupport]]
+== Habilitar AutoSupport
+
+Você pode ativar e desativar o recurso AutoSupport conforme necessário.
+
+.Sobre esta tarefa
+AutoSupport é a principal ferramenta de resolução de problemas usada pela NetApp no suporte ao ONTAP Select. Portanto, você não deve desativar o AutoSupport a menos que seja absolutamente necessário. Se você desativar o AutoSupport, os dados ainda serão coletados, mas não transmitidos para a NetApp.
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Administração* na parte superior da página.
+. Selecione *Configurações e AutoSupport* e, em seguida, selecione image:icon_kebab.gif["Opções"].
+. Ative ou desative o recurso AutoSupport conforme necessário.
+
+
+
+
+[[generate-and-download-an-autosupport-package]]
+== Gere e baixe um AutoSupport pacote
+
+ONTAP Select inclui a capacidade de gerar um pacote AutoSupport. Você deve gerar um pacote para depurar quaisquer problemas ou quando instruído a fazê-lo pelo suporte.
+
+.Sobre esta tarefa
+Você pode gerar os seguintes AutoSupport pacotes sob a direção e orientação do suporte da NetApp:
+
+* Logs de implantação Arquivos de log criados pelo utilitário ONTAP Select Deploy
+* Solução de problemas Informações sobre solução de problemas e depuração dos hosts do hipervisor e dos nós ONTAP Select
+* Desempenho Informações sobre o desempenho dos hosts do hipervisor e dos nós ONTAP Select
+
+
+.Passos
+. Faça login na interface de usuário da web do utilitário Deploy usando a conta de administrador.
+. Selecione a aba *Administração* na parte superior da página.
+. Selecione *Configurações e AutoSupport* e, em seguida, selecione image:icon_kebab.gif["Opções"].
+. Selecione *Gerar*.
+. Selecione o tipo e forneça uma descrição para o pacote; opcionalmente, você pode fornecer um número de caso.
+. Selecione *Gerar*.
++
+A cada pacote AutoSupport é atribuído um número de identificação sequencial único.
+
+. Opcionalmente, selecione o pacote correto em *AutoSupport History* e, em seguida, selecione o ícone de download para salvar o arquivo AutoSupport em sua estação de trabalho local.
+

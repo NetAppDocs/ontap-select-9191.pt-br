@@ -1,0 +1,60 @@
+---
+sidebar: sidebar 
+permalink: concept_adm_upgrading_nodes.html 
+keywords: administer, administering, web, upgrading nodes 
+summary: Após implantar um cluster ONTAP Select, você pode atualizar a imagem ONTAP de cada nó conforme necessário, usando o procedimento padrão de atualização de software ONTAP. 
+---
+= Atualizar nós do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Após implantar um cluster ONTAP Select, você pode atualizar a imagem ONTAP em cada nó do cluster conforme necessário.
+
+
+CAUTION: Não é possível usar o utilitário de administração Deploy para realizar atualizações de nós ONTAP Select existentes. O utilitário Deploy só pode ser usado para criar novos clusters ONTAP Select.
+
+
+
+[[general-procedure]]
+== Procedimento geral
+
+Em alto nível, você deve usar as etapas a seguir para atualizar um nó ONTAP Select existente.
+
+.Passos
+. Acesse a link:https://mysupport.netapp.com/site/downloads/["Downloads do site de suporte da NetApp"^] página.
+. Deslize para baixo e selecione *ONTAP Select Image*.
+. Selecione a versão desejada da imagem de instalação.
+. Leia atentamente o contrato de licença do usuário final (EULA) e selecione *Aceitar e Continuar*.
+. Selecione e faça o download do pacote *ONTAP Select Image Upgrade* apropriado. Responda a todas as solicitações conforme necessário.
++
+Consulte a link:reference_release_notes.html["notas de lançamento"] para obter informações adicionais e quaisquer procedimentos necessários antes de atualizar um nó ONTAP Select.
+
+. Atualize o nó ONTAP Select usando os procedimentos padrão de atualização do ONTAP com o arquivo de atualização do ONTAP Select. Para obter informações sobre os caminhos de atualização suportados, consulte o link:https://docs.netapp.com/us-en/ontap/upgrade/concept_upgrade_paths.html["Caminhos de atualização do ONTAP suportados"^].
+
+
+
+
+[[revert-an-ontap-select-node]]
+== Reverter um nó ONTAP Select
+
+Não é possível reverter um nó ONTAP Select para uma versão anterior àquela em que foi originalmente instalado. Por exemplo:
+
+ONTAP Select 9.16.1 é instalado inicialmente:: Você pode atualizar o nó para a versão 9.17.1 e, em seguida, reverter para a versão 9.16.1 se necessário.
+ONTAP Select 9.17.1 é instalado inicialmente:: Não é possível reverter, pois não havia nenhuma versão anterior instalada.
+
+
+
+
+[[use-the-vmxnet3-network-driver]]
+== Utilize o driver de rede VMXNET3
+
+O VMXNET3 é o driver de rede padrão incluído em novas implementações de cluster no VMware ESXi. Se você atualizar um nó ONTAP Select existente executando ONTAP Select 9.4 ou anterior, o driver de rede não será atualizado automaticamente. Você deve atualizar manualmente para o VMXNET3. Você deve entrar em contato com o suporte da NetApp para obter assistência com a atualização.
+
+.Informações relacionadas
+link:https://docs.netapp.com/us-en/ontap/upgrade/index.html["Visão geral da atualização do ONTAP"^]

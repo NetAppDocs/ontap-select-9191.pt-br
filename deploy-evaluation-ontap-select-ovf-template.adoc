@@ -1,0 +1,69 @@
+---
+sidebar: sidebar 
+permalink: deploy-evaluation-ontap-select-ovf-template.html 
+keywords: ontap, select, ovf, template, deployment, evaluation, license 
+summary: Você pode implantar uma instância de avaliação de 90 dias de um cluster de nó único ONTAP Select. 
+---
+= Implante uma instância de avaliação de 90 dias de um cluster ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Você pode implantar uma instância de avaliação de 90 dias de um cluster ONTAP Select, com tamanho variando de um cluster de nó único até 99 nós, usando um modelo OVF no VMware ESXi. Você pode baixar uma licença de avaliação se já for cliente ou se for novo cliente. Por exemplo, você já é cliente e quer experimentar uma nova configuração antes de comprar uma licença.
+
+.Sobre esta tarefa
+* Você não precisa obter um número de série ou licença de capacidade de storage da NetApp.
+* Você pode alocar a mesma quantidade de storage para dados de usuário que uma licença adquirida.
+* Você só pode usar uma conta vCenter para implantar o modelo OVF. A instalação direta em um host ESXi não é suportada atualmente.
+* Você deve instalar o modelo OVF (contido em um arquivo OVA) usando o vSphere standalone client ou o vSphere web client (a única opção para ESXi 8.0 e versões posteriores). Você não usa o utilitário de administração do ONTAP Select Deploy.
+
+
+
+
+[[step-1-prepare-the-ontap-select-cluster-host]]
+== Etapa 1: prepare o host do cluster ONTAP Select
+
+Utilize os seguintes requisitos para preparar o host ESXi onde o cluster ONTAP Select será implantado. A descrição da plataforma é baseada na configuração de instância padrão ou pequena com armazenamento local de conexão direta (DAS) formatado usando o sistema de arquivos VMFS-5 ou VMFS-6.
+
+image:prepare_ESXi_host_requirements.png["Requisitos para preparar o host ESXi"]
+
+Para obter informações adicionais sobre as opções de configuração do host, consulte o link:esxi-host-configuration-and-preparation-checklist.html["Documentação de instalação do ONTAP Select"].
+
+
+
+[[step-2-deploy-a-single-node-ontap-select-cluster-using-an-ovf-template]]
+== Etapa 2: implante um cluster de nó único ONTAP Select usando um modelo OVF
+
+Conclua as seguintes etapas em um servidor host ESXi de 64 bits compatível.
+
+.Passos
+. Acesse a página do Programa de Produtos de Avaliação da NetApp e selecione *ONTAP Select* para baixar o template OVF do ONTAP Select para sua estação de trabalho local.
+. Faça login no cliente web do VMware vSphere usando uma conta com privilégios administrativos.
+. Selecione o host usando uma das seguintes opções:
++
+** Selecione *Arquivo* > *Implantar modelo OVF*.
+** Selecione *Datacenter*. Em seguida, clique com o botão direito do mouse e selecione *Implantar modelo OVF*.
+
+
+. Selecione o arquivo OVA de origem do ONTAP Select em sua estação de trabalho local e, em seguida, selecione *Avançar*.
+. Analise os detalhes do modelo OVF e selecione *Avançar*.
+. Revise os detalhes do contrato de licença do usuário final e selecione *Aceitar*. Depois, selecione *Avançar*.
+. Digite o nome da nova máquina virtual e selecione *Avançar*.
+. Se houver mais de um datastore disponível, selecione o datastore e clique em *Avançar*.
+. Selecione *Thick Provision Lazy Zeroed* e, em seguida, selecione *Next*.
+. Selecione as redes de dados e de gerenciamento e, em seguida, selecione *Next*.
+. Na página *Propriedades*, forneça todos os valores necessários e selecione *Avançar*.
+. Analise os detalhes da implementação e selecione *Ligar após a implementação*.
+. Selecione *Concluir* para iniciar o processo de implantação.
+. Após o cluster ONTAP Select ter sido implantado, você pode configurar o cluster usando o System Manager ou a interface CLI. Você deve atribuir o disco usando a operação padrão do ONTAP *disk assign*.
+
+
+.Informações relacionadas
+* link:concept_lic_evaluation.html["Saiba mais sobre as licenças de avaliação para implementações do ONTAP Select"]
+* link:http://mysupport.netapp.com/matrix["Ferramenta de Matriz de Interoperabilidade"^]
+

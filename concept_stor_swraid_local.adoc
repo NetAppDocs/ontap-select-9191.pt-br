@@ -1,0 +1,258 @@
+---
+sidebar: sidebar 
+permalink: concept_stor_swraid_local.html 
+keywords: ontap select, software raid, local attached storage, protection 
+summary: RAID de software é uma camada de abstração RAID implementada dentro da pilha de software ONTAP. Ela fornece a mesma funcionalidade que a camada RAID em uma plataforma ONTAP tradicional, como FAS. A camada RAID realiza cálculos de paridade das unidades e oferece proteção contra falhas de unidades individuais dentro de um nó ONTAP Select. 
+---
+= Serviços de configuração de RAID de software ONTAP Select para storage conectado localmente
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+RAID de software é uma camada de abstração RAID implementada dentro da pilha de software ONTAP. Ela fornece a mesma funcionalidade que a camada RAID em uma plataforma ONTAP tradicional, como FAS. A camada RAID realiza cálculos de paridade das unidades e oferece proteção contra falhas de unidades individuais dentro de um nó ONTAP Select.
+
+Independentemente das configurações de RAID por hardware, ONTAP Select também oferece uma opção de RAID por software. Um controlador RAID por hardware pode não estar disponível ou pode ser indesejável em determinados ambientes, como quando o ONTAP Select é implementado em hardware como commodity de pequeno formato. O RAID por software amplia as opções de implementação disponíveis para incluir esses ambientes. Para habilitar o RAID por software em seu ambiente, lembre-se dos seguintes pontos:
+
+* Está disponível com uma licença Premium ou Premium XL.
+* Ele suporta apenas unidades SSD ou NVMe (requer licença Premium XL) para discos raiz e de dados do ONTAP.
+* É necessário um disco de sistema separado para a partição de inicialização da máquina virtual ONTAP Select.
++
+** Escolha um disco separado, seja um SSD ou uma unidade NVMe, para criar um datastore para os discos do sistema (NVRAM, cartão Boot/CF, Coredump e Mediator em uma configuração com vários nós).
+
+
+
+
+[NOTE]
+====
+* Os termos disco de serviço e disco de sistema são usados como sinônimos.
++
+** Os discos de serviço são os discos virtuais (VMDKs) usados dentro da máquina virtual ONTAP Select para atender a vários itens, como clustering, inicialização e assim por diante.
+** Os discos de serviço estão fisicamente localizados em um único disco físico (coletivamente denominado disco físico de serviço/sistema), conforme visto pelo host. Esse disco físico deve conter um datastore DAS. ONTAP Deploy cria esses discos de serviço para a ONTAP Select VM durante a implantação do cluster.
+
+
+* Não é possível separar ainda mais os discos do sistema ONTAP Select em vários datastores ou em várias unidades físicas.
+* Hardware RAID não está obsoleto.
+
+
+====
+
+
+[[software-raid-configuration-for-local-attached-storage]]
+== Configuração de RAID por software para armazenamento conectado localmente
+
+Ao usar RAID por software, a ausência de um controlador RAID por hardware é ideal, mas, se um sistema já possui um controlador RAID, ele deve atender aos seguintes requisitos:
+
+* Você deve desativar o controlador RAID de hardware para que os discos possam ser apresentados diretamente ao sistema (um JBOD). Normalmente, essa alteração pode ser feita no BIOS do controlador RAID.
+* Ou o controlador RAID deve estar no modo SAS HBA. Por exemplo, algumas configurações de BIOS permitem um modo "AHCI" além do RAID, que você pode escolher para habilitar o modo JBOD. Isso permite um passthrough, para que as unidades físicas possam ser vistas como estão no host.
+
+
+Dependendo do número máximo de unidades suportadas pelo controlador, um controlador adicional pode ser necessário. Com o modo SAS HBA, certifique-se de que o controlador de E/S (SAS HBA) seja compatível com uma velocidade mínima de 6Gbps. No entanto, a NetApp recomenda uma velocidade de 12Gbps.
+
+Não há suporte para outros modos ou configurações de controlador RAID de hardware. Por exemplo, alguns controladores permitem um suporte a RAID 0 que pode habilitar artificialmente a passagem direta de discos, mas as implicações podem ser indesejáveis. O tamanho suportado de discos físicos (somente SSD) é entre 200GB e 16TB.
+
+
+NOTE: Os administradores precisam monitorar quais unidades estão sendo usadas pela ONTAP Select VM e evitar o uso inadvertido dessas unidades no host.
+
+
+
+[[ontap-select-virtual-and-physical-disks]]
+== ONTAP Select discos virtuais e físicos
+
+Para configurações com controladores RAID de hardware, a redundância de disco físico é fornecida pelo controlador RAID. ONTAP Select é apresentado com um ou mais VMDKs a partir dos quais o administrador do ONTAP pode configurar agregados de dados. Esses VMDKs são distribuídos em um formato RAID 0 porque usar o RAID por software do ONTAP é redundante, ineficiente e ineficaz devido à resiliência fornecida no nível de hardware. Além disso, os VMDKs usados para discos do sistema estão no mesmo datastore que os VMDKs usados para armazenar dados de usuário.
+
+Ao usar RAID por software, ONTAP Deploy apresenta ao ONTAP Select um conjunto de VMDKs e mapeamentos de dispositivos brutos (RDMs) de discos físicos para SSDs e dispositivos de passagem ou DirectPath IO para NVMe.
+
+As figuras a seguir mostram essa relação com mais detalhes, destacando a diferença entre os discos virtualizados usados para os componentes internos da VM do ONTAP Select e os discos físicos usados para armazenar dados de usuário.
+
+*ONTAP Select software RAID: utilização de discos virtualizados e RDMs*
+
+image:ST_18.PNG["ONTAP Select software RAID: uso de discos virtualizados e RDMs"]
+
+Os discos do sistema (VMDKs) residem no mesmo datastore e no mesmo disco físico. O disco NVRAM virtual requer uma mídia rápida e durável. Portanto, somente datastores do tipo NVMe e SSD são suportados.
+
+image:ST_19.PNG["ONTAP Select software RAID com unidades NVMe: utilização de discos virtualizados e dispositivos de passagem direta"]
+
+Os discos do sistema (VMDKs) residem no mesmo datastore e no mesmo disco físico. O disco NVRAM virtual requer uma mídia rápida e durável. Portanto, somente datastores do tipo NVMe e SSD são suportados. Ao usar unidades NVMe para dados, o disco do sistema também deve ser um dispositivo NVMe por motivos de desempenho. Uma boa opção para o disco do sistema em uma configuração totalmente NVMe é uma placa INTEL Optane.
+
+
+NOTE: Na versão atual, não é possível separar ainda mais os discos do sistema ONTAP Select em vários datastores ou unidades físicas.
+
+Cada disco de dados é dividido em três partes: uma pequena partição raiz (stripe) e duas partições de tamanho igual para criar dois discos de dados visíveis na ONTAP Select VM. As partições utilizam o esquema Root Data Data (RD2), conforme mostrado nas figuras a seguir para um cluster de nó único e para um nó em um par de HA (alta disponibilidade).
+
+`P` denota uma unidade de paridade,  `DP` denota uma unidade de paridade dupla e  `S` denota uma unidade de reserva.
+
+*particionamento de disco RDD para clusters de nó único*
+
+image:ST_19.jpg["Particionamento de disco RDD para clusters de nó único"]
+
+*particionamento de disco RDD para clusters com vários nós (pares de HA)*
+
+image:ST_20.jpg["Particionamento de disco RDD para clusters de múltiplos nós (pares de HA)"]
+
+O software RAID do ONTAP suporta os seguintes tipos de RAID: RAID 4, RAID-DP e RAID-TEC. Essas são as mesmas estruturas de RAID usadas pelas plataformas FAS e AFF. Para provisionamento de raiz, o ONTAP Select suporta apenas RAID 4 e RAID-DP. Ao usar RAID-TEC para o agregado de dados, a proteção geral é RAID-DP. O ONTAP Select HA usa uma arquitetura sem compartilhamento que replica a configuração de cada nó para o outro nó. Isso significa que cada nó deve armazenar sua partição raiz e uma cópia da partição raiz de seu par. Um disco de dados possui uma única partição raiz. Isso significa que o número mínimo de discos de dados varia dependendo se o nó ONTAP Select faz parte de um par de HA.
+
+Para clusters de nó único, todas as partições de dados são usadas para armazenar dados locais (ativos). Para nós que fazem parte de um par de HA, uma partição de dados é usada para armazenar dados locais (ativos) desse nó e a segunda partição de dados é usada para espelhar dados ativos do par de HA.
+
+
+
+[[passthrough-directpath-io-devices-vs-raw-device-maps-rdms]]
+== Dispositivos de passagem (DirectPath IO) vs. Mapas de Dispositivos Brutos (RDMs)
+
+Os hipervisores ESXi e KVM não suportam discos NVMe como Raw Device Maps (RDMs). Para permitir que o ONTAP Select assuma o controle direto dos discos NVMe, você deve configurar essas unidades como dispositivos de passagem dentro do ESXi ou KVM. Ao configurar um dispositivo NVMe como dispositivo de passagem, é necessário o suporte do BIOS do servidor e pode ser preciso reinicializar o host. Além disso, há limites para o número de dispositivos de passagem que podem ser atribuídos por host, que podem variar dependendo da plataforma. No entanto, o ONTAP Deploy limita isso a 14 dispositivos NVMe por nó do ONTAP Select. Isso significa que a configuração NVMe oferece uma densidade de IOPS muito alta (IOPS/TB) à custa da capacidade total. Como alternativa, se você deseja uma configuração de alto desempenho com maior capacidade de storage, a configuração recomendada é um tamanho grande de VM do ONTAP Select, uma placa INTEL Optane para o disco do sistema e um número nominal de unidades SSD para storage.
+
+
+NOTE: Para aproveitar ao máximo o desempenho do NVMe, considere o tamanho grande da VM ONTAP Select.
+
+Existe uma diferença adicional entre dispositivos de passagem direta (passthrough) e RDMs. Os RDMs podem ser mapeados para uma VM em execução. Os dispositivos de passagem direta exigem uma reinicialização da VM. Isso significa que qualquer procedimento de substituição de unidade NVMe ou expansão de capacidade (adição de unidade) exigirá uma reinicialização da VM ONTAP Select. A operação de substituição de unidade e expansão de capacidade (adição de unidade) é conduzida por um fluxo de trabalho no ONTAP Deploy. O ONTAP Deploy gerencia a reinicialização do ONTAP Select para clusters de nó único e o failover/failback para pares de HA. No entanto, é importante observar a diferença entre trabalhar com unidades de dados SSD (não é necessária reinicialização/failover do ONTAP Select) e trabalhar com unidades de dados NVMe (é necessária reinicialização/failover do ONTAP Select).
+
+
+
+[[physical-and-virtual-disk-provisioning]]
+== Provisionamento de discos físicos e virtuais
+
+Para proporcionar uma experiência de usuário mais simplificada, ONTAP Deploy provisiona automaticamente os discos do sistema (virtuais) a partir do datastore especificado (disco físico do sistema) e os conecta à ONTAP Select VM. Essa operação ocorre automaticamente durante a configuração inicial, permitindo que a ONTAP Select VM possa ser inicializada. Os RDMs são particionados e o agregado de raiz é criado automaticamente. Se o nó ONTAP Select fizer parte de um par de HA, as partições de dados são atribuídas automaticamente a um pool de storage local e a um pool de storage espelhado. Essa atribuição ocorre automaticamente durante as operações de criação de cluster e de adição de storage.
+
+Como os discos de dados na VM do ONTAP Select estão associados aos discos físicos subjacentes, a criação de configurações com um número maior de discos físicos tem implicações de desempenho.
+
+
+NOTE: O tipo de grupo RAID do agregado de raiz depende do número de discos disponíveis. ONTAP Deploy seleciona o tipo de grupo RAID apropriado. Se houver discos suficientes alocados ao nó, ele usa RAID-DP; caso contrário, cria um agregado de raiz RAID-4.
+
+Ao adicionar capacidade a uma VM do ONTAP Select usando RAID por software, o administrador deve considerar o tamanho físico do disco e o número de discos necessários. Para obter detalhes, consulte link:concept_stor_capacity_inc.html["Aumentar capacidade de storage"].
+
+Assim como nos sistemas FAS e AFF, você só pode adicionar unidades com capacidades iguais ou maiores a um grupo RAID existente. Unidades de maior capacidade são dimensionadas corretamente. Se você estiver criando novos grupos RAID, o tamanho do novo grupo RAID deve corresponder ao tamanho do grupo RAID existente para garantir que o desempenho agregado geral não seja prejudicado.
+
+
+
+[[match-an-ontap-select-disk-to-the-corresponding-esxi-or-kvm-disk]]
+== Corresponda um disco ONTAP Select ao disco ESXi ou KVM correspondente
+
+Os discos ONTAP Select geralmente são rotulados como NET x.y. Você pode usar o seguinte comando ONTAP para obter o UUID do disco:
+
+[source, cli]
+----
+<system name>::> disk show NET-1.1
+Disk: NET-1.1
+Model: Micron_5100_MTFD
+Serial Number: 1723175C0B5E
+UID: *500A0751:175C0B5E*:00000000:00000000:00000000:00000000:00000000:00000000:00000000:00000000
+BPS: 512
+Physical Size: 894.3GB
+Position: shared
+Checksum Compatibility: advanced_zoned
+Aggregate: -
+Plex: -This UID can be matched with the device UID displayed in the ‘storage devices’ tab for the ESX host
+----
+image:ST_21.jpg["Correspondência de um disco ONTAP Select ao disco ESXi correspondente"]
+
+No shell do ESXi ou KVM, você pode inserir o seguinte comando para piscar o LED de um determinado disco físico (identificado pelo seu naa.unique-id).
+
+[role="tabbed-block"]
+====
+.ESXi
+--
+[source, cli]
+----
+esxcli storage core device set -d <naa_id> -l=locator -L=<seconds>
+----
+--
+.KVM
+--
+[source, cli]
+----
+cat /sys/block/<block_device_id>/device/wwid
+----
+--
+====
+
+
+[[multiple-drive-failures-when-using-software-raid]]
+== Falhas em várias unidades ao usar RAID por software
+
+É possível que um sistema se depare com uma situação em que várias unidades com falha ocorram ao mesmo tempo. O comportamento do sistema depende da proteção RAID do agregado e do número de unidades com falha.
+
+Um agregado RAID4 pode sobreviver a uma falha de disco, um agregado RAID-DP pode sobreviver a duas falhas de disco e um agregado RAID-TEC pode sobreviver a três falhas de disco.
+
+Se o número de discos com falha for menor que o número máximo de falhas que o tipo de RAID suporta, e se houver um disco sobressalente disponível, o processo de reconstrução inicia automaticamente. Caso não haja discos sobressalentes disponíveis, o agregado fornecerá dados em estado degradado até que discos sobressalentes sejam adicionados.
+
+Se o número de discos com falha for maior que o número máximo de falhas que o tipo de RAID suporta, então o plex local é marcado como com falha e o estado do agregado é degradado. Os dados são servidos a partir do segundo plex localizado no parceiro de HA. Isso significa que quaisquer solicitações de E/S para o nó 1 são enviadas através da porta de interconexão de cluster e0e (iSCSI) para os discos fisicamente localizados no nó 2. Se o segundo plex também falhar, então o agregado é marcado como com falha e os dados ficam indisponíveis.
+
+Um plex com falha deve ser excluído e recriado para que o espelhamento dos dados seja retomado. Observe que uma falha em vários discos que resulta em um agregado de dados degradado também resulta em um agregado de raiz degradado. ONTAP Select usa o esquema de particionamento root-data-data (RDD) para dividir cada unidade física em uma partição de raiz e duas partições de dados. Portanto, a perda de um ou mais discos pode afetar vários agregados, incluindo o agregado de raiz local ou a cópia do agregado de raiz remoto, bem como o agregado de dados local e a cópia do agregado de dados remoto.
+
+Um plex com falha é excluído e recriado no exemplo de saída a seguir:
+
+[listing]
+----
+C3111E67::> storage aggregate plex delete -aggregate aggr1 -plex plex1
+Warning: Deleting plex "plex1" of mirrored aggregate "aggr1" in a non-shared HA configuration will disable its synchronous mirror protection and disable
+         negotiated takeover of node "sti-rx2540-335a" when aggregate "aggr1" is online.
+Do you want to continue? {y|n}: y
+[Job 78] Job succeeded: DONE
+
+C3111E67::> storage aggregate mirror -aggregate aggr1
+Info: Disks would be added to aggregate "aggr1" on node "sti-rx2540-335a" in the following manner:
+      Second Plex
+        RAID Group rg0, 5 disks (advanced_zoned checksum, raid_dp)
+                                                            Usable Physical
+          Position   Disk                      Type           Size     Size
+          ---------- ------------------------- ---------- -------- --------
+          shared     NET-3.2                   SSD               -        -
+          shared     NET-3.3                   SSD               -        -
+          shared     NET-3.4                   SSD         208.4GB  208.4GB
+          shared     NET-3.5                   SSD         208.4GB  208.4GB
+          shared     NET-3.12                  SSD         208.4GB  208.4GB
+
+      Aggregate capacity available for volume use would be 526.1GB.
+      625.2GB would be used from capacity license.
+Do you want to continue? {y|n}: y
+
+C3111E67::> storage aggregate show-status -aggregate aggr1
+Owner Node: sti-rx2540-335a
+ Aggregate: aggr1 (online, raid_dp, mirrored) (advanced_zoned checksums)
+  Plex: /aggr1/plex0 (online, normal, active, pool0)
+   RAID Group /aggr1/plex0/rg0 (normal, advanced_zoned checksums)
+                                                              Usable Physical
+     Position Disk                        Pool Type     RPM     Size     Size Status
+     -------- --------------------------- ---- ----- ------ -------- -------- ----------
+     shared   NET-1.1                      0   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-1.2                      0   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-1.3                      0   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-1.10                     0   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-1.11                     0   SSD        -  205.1GB  447.1GB (normal)
+  Plex: /aggr1/plex3 (online, normal, active, pool1)
+   RAID Group /aggr1/plex3/rg0 (normal, advanced_zoned checksums)
+                                                              Usable Physical
+     Position Disk                        Pool Type     RPM     Size     Size Status
+     -------- --------------------------- ---- ----- ------ -------- -------- ----------
+     shared   NET-3.2                      1   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-3.3                      1   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-3.4                      1   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-3.5                      1   SSD        -  205.1GB  447.1GB (normal)
+     shared   NET-3.12                     1   SSD        -  205.1GB  447.1GB (normal)
+10 entries were displayed..
+----
+[NOTE]
+====
+Para testar ou simular a falha de uma ou mais unidades, utilize o comando  `storage disk fail -disk NET-x.y -immediate`. Se houver um disco sobressalente no sistema, o agregado começará a ser reconstruído. Você pode verificar o status da reconstrução usando o comando  `storage aggregate show`. Você pode remover a unidade com falha simulada usando ONTAP Deploy. Observe que o ONTAP marcou a unidade como  `Broken`. A unidade não está realmente quebrada e pode ser adicionada novamente usando ONTAP Deploy. Para remover o rótulo Broken, insira os seguintes comandos na interface de linha de comando do ONTAP Select:
+
+[listing]
+----
+set advanced
+disk unfail -disk NET-x.y -spare true
+disk show -broken
+----
+O resultado do último comando deve estar vazio.
+
+====
+
+
+[[virtualized-nvram]]
+== NVRAM virtualizada
+
+NetApp FAS são tradicionalmente equipados com uma placa PCI NVRAM física. Esta placa de alto desempenho contém memória flash não volátil que proporciona um aumento significativo no desempenho de gravação. Ela faz isso ao conceder ao ONTAP a capacidade de reconhecer imediatamente as gravações recebidas de volta para o cliente. Ela também pode agendar a movimentação de blocos de dados modificados de volta para mídias de armazenamento mais lentas em um processo conhecido como destaging.
+
+Sistemas comerciais normalmente não são equipados com esse tipo de equipamento. Portanto, a funcionalidade da placa NVRAM foi virtualizada e alocada em uma partição no disco de inicialização do sistema ONTAP Select. É por esse motivo que o posicionamento do disco virtual do sistema da instância é extremamente importante.

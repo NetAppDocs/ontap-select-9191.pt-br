@@ -1,0 +1,111 @@
+---
+sidebar: sidebar 
+permalink: concept_terminology.html 
+keywords: terminology, key concepts, concepts 
+summary: Ao começar a explorar ONTAP Select e planejar uma implementação, é útil primeiro familiarizar-se com a terminologia e os principais conceitos. 
+---
+= Terminologia e conceitos principais do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Ao começar a explorar ONTAP Select e planejar uma implementação, é útil primeiro familiarizar-se com a terminologia e os principais conceitos.
+
+ONTAP Select Deploy:: ONTAP Select Deploy é o utilitário de administração que você usa para implantar clusters ONTAP Select. O utilitário Deploy é executado em uma máquina virtual Linux dedicada. Você pode acessar o utilitário Deploy por meio da interface de usuário web, shell de gerenciamento da interface de linha de comando e API REST.
+Máquina virtual baseada em kernel:: Kernel-based Virtual Machine (KVM) é um recurso de virtualização do kernel Linux, que permite que ele atue como uma plataforma de hipervisor. Uma ampla gama de sistemas operacionais convidados é suportada.
+Host do hipervisor versus nó do ONTAP Select:: Um host de hipervisor é a plataforma de hardware central que hospeda uma máquina virtual ONTAP Select. Quando uma máquina virtual ONTAP Select é implantada e está ativa em um host de hipervisor, ela é considerada um nó ONTAP Select.
+Cluster ONTAP Select:: Você pode criar um cluster ONTAP Select composto por um, dois, quatro, seis, oito, dez ou doze nós. Clusters com vários nós sempre contêm um ou mais pares de HA. Por exemplo, um cluster de quatro nós consiste em dois pares de HA. Um cluster com um único nó não oferece capacidade de HA.
+Preparação do ambiente host do hipervisor:: Antes de usar o utilitário de administração Deploy para implantar um cluster ONTAP Select, você precisa preparar os hosts do hipervisor onde o ONTAP Select será executado, incluindo os ambientes de storage e rede. Essa pré-configuração do host é feita fora do produto ONTAP Select, com base nos requisitos e limitações atuais.
+Avaliação versus implantações em produção:: Cada nó do ONTAP Select é executado com uma licença de avaliação ou uma licença adquirida. Uma licença de avaliação permite que você avalie ONTAP Select antes de implantá-lo em um ambiente de produção. A licença de avaliação é gerada e aplicada automaticamente. Se você implantar um cluster em um ambiente de produção, deverá adquirir uma licença, o que envolve a escolha de:
++
+--
+* Modelo de licenciamento
+* Capacidade de armazenamento
+* Oferta de licença de plataforma
+
+
+--
+Modelo de licenciamento Capacity Tiers:: O modelo de licenciamento Capacity Tiers é a opção original para licenciamento de storage em uma implementação do ONTAP Select. Ele é baseado no modelo ONTAP usado com NetApp AFF e FAS. Uma licença separada é necessária para cada nó. A capacidade de storage é vinculada ao nó e é perpétua (sem necessidade de renovação).
+Modelo de licenciamento Capacity Pools:: O modelo de licenciamento Capacity Pools foi introduzido com ONTAP Select 9.5 usando Deploy 2.10. Uma licença separada é necessária para cada Capacity Pool de storage. A licença do Capacity Pool está vinculada a uma instância do License Manager (ou seja, uma instância do Deploy) e deve ser renovada de acordo com os termos da sua compra. Você pode licenciar e usar qualquer número de Capacity Pools em sua organização. No entanto, como os Capacity Pools são compartilhados pelos nós do ONTAP Select, normalmente são necessárias menos licenças do que com o licenciamento Capacity Tiers.
+Gerenciador de Licenças:: O Gerenciador de Licenças (LM) é um componente de software que oferece suporte ao licenciamento de Capacity Pools. Atualmente, ele faz parte do utilitário de administração Deploy. O LM aluga storage para os nós do ONTAP Select a partir dos pools compartilhados que gerencia. O _License Lock ID_ é uma sequência numérica que identifica exclusivamente cada instância do LM e, portanto, cada instância do Deploy. Você deve usar tanto o número de série da licença do Capacity Pool quanto o LLID para gerar um arquivo de licença.
+Ofertas de licenciamento de plataforma:: Existem três opções de licença disponíveis que determinam as capacidades de tamanho da máquina virtual ONTAP Select ao adquirir uma licença:
++
+--
+* Padrão
+* Premium
+* XL Premium
+
+
+--
+
+
+Para obter mais informações, consulte as duas seções link:concept_workflow_deploy.html["Plano"] e link:concept_lic_evaluation.html["Licença"].
+
+Pools de storage versus datastores:: Um pool de storage do ONTAP Select é um contêiner de dados lógicos projetado para abstrair e ocultar o storage físico. Um pool de storage é independente do hipervisor. Quando implantado em um host hipervisor ESXi, o pool de storage do ONTAP Select é sinônimo do datastore da VMware.
+Endereço MTU do cluster:: O MTU do cluster é um recurso que permite configurar o tamanho do MTU usado na rede interna utilizada com um cluster ONTAP Select com vários nós. O utilitário de administração Deploy ajusta o tamanho da MTU conforme você configura os pares de HA para se adequar ao seu ambiente de rede. Você também pode definir o valor manualmente.
+ONTAP Select vNAS:: A solução ONTAP Select vNAS permite que um nó ONTAP Select acesse datastores VMware em storage externo. Com ONTAP Select vNAS, um controlador RAID local não é mais necessário; a funcionalidade RAID é assumida como fornecida pelo storage remoto. ONTAP Select vNAS pode ser configurado das seguintes maneiras:
++
+--
+* VMware vSAN
+* Array de storage externo genérico
+
+
+--
+
+
+Em ambos os casos, o armazenamento externo deve ser configurado antes de criar um cluster ONTAP Select ou expandir a capacidade de storage de um nó existente.
+
+Re-hospedagem de nó na VM ESXi:: Ao implementar um cluster que utiliza armazenamento externo disponível através da solução ONTAP Select vNAS (seja VMware vSAN ou um array de storage externo genérico), a máquina virtual ESXi que hospeda o nó ONTAP Select pode ser movida por meio de ações que utilizam os seguintes recursos do VMware:
++
+--
+* vMotion
+* Alta disponibilidade (HA)
+* Agendador de Recursos Distribuídos (DRS)
++
+O utilitário ONTAP Select Deploy detecta a movimentação da máquina virtual como parte da execução de uma operação no cluster, como:
+
+* cluster online
+* cluster offline
+* adicionar armazenamento
++
+Quando uma máquina virtual é movida, o utilitário Deploy atualiza seu banco de dados interno e configura o novo host ESXi. Todas as ações realizadas no nó ONTAP Select são bloqueadas até que a movimentação da máquina virtual e as atualizações do Deploy sejam concluídas.
+
+
+
+--
+Open vSwitch para KVM:: O vSwitch (OVS) é uma implementação de software de um switch virtual que suporta múltiplos protocolos de rede. OVS é de código aberto e está disponível de acordo com a licença Apache 2.0.
+Serviço de mediação:: O utilitário ONTAP Select Deploy inclui um serviço mediador que se conecta aos nós nos clusters ativos de dois nós. Esse serviço monitora cada par de HA e auxilia no gerenciamento de falhas.
+
+
+
+CAUTION: Se você tiver um ou mais clusters ativos de dois nós, a máquina virtual ONTAP Select Deploy que administra os clusters deve estar em execução o tempo todo. Se a máquina virtual Deploy for interrompida, o serviço de mediação ficará indisponível e a capacidade de HA será perdida para os clusters de dois nós.
+
+MetroCluster SDS:: MetroCluster SDS é um recurso que oferece uma opção de configuração adicional ao implantar um cluster ONTAP Select de dois nós. Ao contrário de uma implantação ROBO típica de dois nós, os nós MetroCluster SDS podem ser separados por uma distância muito maior. Essa separação física possibilita casos de uso adicionais, como recuperação de desastres. É necessário ter uma licença premium ou superior para usar o MetroCluster SDS. Além disso, a rede entre os nós deve suportar um requisito mínimo de latência.
+Loja de credenciais:: O repositório de credenciais de Deploy é um banco de dados seguro que armazena as credenciais da conta. Ele é usado principalmente para registrar hosts de hipervisor como parte da criação de um novo cluster. Consulte a seção link:concept_workflow_deploy.html["Plano"] para obter mais informações.
+Eficiência de storage:: ONTAP Select oferece opções de eficiência de storage semelhantes às opções de eficiência de storage presentes nos arrays FAS e AFF. Conceitualmente, ONTAP Select com SSDs de armazenamento de conexão direta (DAS) (usando uma licença premium) é similar a um array AFF. Configurações que utilizam DAS com HDDs e todas as configurações vNAS devem ser consideradas similares a um array FAS. A principal diferença entre as duas configurações é que ONTAP Select com SSDs DAS suporta deduplicação em linha no nível de agregado e deduplicação em segundo plano no nível de agregado. As demais opções de eficiência de storage estão disponíveis para ambas as configurações.
++
+--
+As configurações padrão do vNAS habilitam um recurso de otimização de gravação conhecido como registro de dados de instância única (SIDL). Com o ONTAP Select 9.6 e versões posteriores, os recursos de eficiência de storage em segundo plano do ONTAP são qualificados com o SIDL habilitado. Consulte a seção link:concept_stor_concepts_chars.html["Análise detalhada"] para obter mais informações.
+
+--
+Atualização do cluster:: Após criar um cluster, você pode fazer alterações na configuração do cluster ou da máquina virtual fora do utilitário Deploy, usando ONTAP ou ferramentas de administração do hipervisor. Você também pode migrar uma máquina virtual, o que causa alterações na configuração. Quando essas alterações ocorrem, o utilitário Deploy não é atualizado automaticamente e pode ficar fora de sincronia com o estado do cluster. Você pode usar o recurso de atualização do cluster para atualizar o banco de dados de configuração do Deploy. A atualização do cluster está disponível por meio da interface de usuário da web do Deploy, do shell de gerenciamento da CLI e da API REST.
+RAID de software:: Ao usar armazenamento conectado diretamente (DAS), a funcionalidade RAID é tradicionalmente fornecida por meio de um controlador RAID baseado em hardware. Você pode, em vez disso, configurar um nó para usar _RAID por software_, onde o nó ONTAP Select fornece a funcionalidade RAID. Se você usar RAID por software, um controlador RAID baseado em hardware não será mais necessário.
+
+
+[[ontap-select-image-install]]
+Instalação de imagem ONTAP Select:: O utilitário de administração Deploy contém apenas uma única versão do ONTAP Select. A versão incluída é a mais recente disponível no momento do lançamento. O recurso de instalação de imagem do ONTAP Select permite adicionar versões anteriores do ONTAP Select à sua instância do utilitário Deploy, que podem então ser usadas ao implantar um cluster ONTAP Select. Consulte link:task_cli_deploy_image_add.html["Adicione imagens do ONTAP Select para obter mais informações"].
+
+
+
+NOTE: Você só deve adicionar uma imagem do ONTAP Select com uma versão anterior à versão original incluída na sua instância do Deploy. Adicionar versões posteriores do ONTAP Select sem também atualizar o Deploy não é compatível.
+
+Administrando um cluster ONTAP Select após sua implantação:: Após implantar um cluster ONTAP Select, você pode configurá-lo da mesma forma que configuraria um cluster ONTAP baseado em hardware. Por exemplo, você pode configurar um cluster ONTAP Select usando o System Manager ou a interface de linha de comando ONTAP.
+
+
+.Informações relacionadas
+link:task_cli_deploy_image_add.html["Adicione uma imagem do ONTAP Select ao Deploy"]

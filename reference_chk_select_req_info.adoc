@@ -1,0 +1,72 @@
+---
+sidebar: sidebar 
+permalink: reference_chk_select_req_info.html 
+keywords: ontap select, pre-installation, vmware 
+summary: Como parte da preparação para implantar um cluster ONTAP Select em um ambiente VMware, colete as informações necessárias ao usar o utilitário de administração ONTAP Select Deploy para implantar e configurar o cluster. 
+---
+= Informações necessárias para a instalação do ONTAP Select
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Como parte da preparação para implantar um cluster ONTAP Select em um ambiente VMware, colete as informações necessárias ao usar o utilitário de administração ONTAP Select Deploy para implantar e configurar o cluster.
+
+Algumas das informações coletadas se aplicam ao próprio cluster, enquanto outras se aplicam aos nós individuais do cluster.
+
+
+
+[[cluster-level-information]]
+== Informações no nível do cluster
+
+Você deve coletar informações relacionadas ao cluster ONTAP Select.
+
+[cols="35,65"]
+|===
+| Informações do cluster | Descrição 
+
+
+| Nome do cluster | Identificador único do cluster. 
+
+
+| Modo de licenciamento | Avaliação ou licenciamento adquirido. 
+
+
+| Configuração de IP para o cluster | Configuração de IP para os clusters e nós, incluindo: * endereço IP de gerenciamento do cluster * máscara de sub-rede * gateway padrão 
+|===
+
+
+[[host-level-information]]
+== Informações de nível de host
+
+Você deve coletar informações relacionadas a cada um dos nós no cluster ONTAP Select.
+
+[cols="35,65"]
+|===
+| Informações do cluster | Descrição 
+
+
+| Nome do host | Identificador único do host. 
+
+
+| Nome de domínio do host | Nome de domínio totalmente qualificado do host. 
+
+
+| Configuração de IP para os nós | Endereço IP de gerenciamento para cada nó no cluster. 
+
+
+| Nó espelho | Nome do nó associado no par de HA (somente clusters com vários nós). 
+
+
+| Pool de storage | Nome do pool de storage que está sendo usado. 
+
+
+| Discos de armazenamento | Lista de discos, caso esteja utilizando RAID por software. 
+
+
+| Número de série | Se você estiver implantando com uma licença adquirida, o número de série exclusivo de nove dígitos fornecido por NetApp. 
+|===

@@ -1,0 +1,80 @@
+---
+sidebar: sidebar 
+permalink: concept_api_understanding_scripts.html 
+keywords: rest api, deploy rest api, rest, python, python scripts, understanding 
+summary: Os scripts Python de exemplo permitem que você execute diversas tarefas diferentes. É importante que você compreenda os scripts antes de usá-los em uma instância ativa do Deploy. 
+---
+= Saiba mais sobre os scripts Python para o ONTAP Select Deploy
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Os scripts Python de exemplo permitem que você execute diversas tarefas diferentes. É importante que você compreenda os scripts antes de usá-los em uma instância ativa do Deploy.
+
+
+
+[[common-design-characteristics]]
+== Características comuns de projeto
+
+Os roteiros foram elaborados com as seguintes características comuns:
+
+* Execute a partir da interface de linha de comando em uma máquina cliente. Você pode executar os scripts Python em qualquer máquina cliente devidamente configurada. Consulte _Antes de começar_ para obter mais informações.
+* Aceitar parâmetros de entrada da CLI Cada script é controlado na CLI por meio de parâmetros de entrada.
+* Leia o arquivo de entrada. Cada script lê um arquivo de entrada de acordo com sua finalidade. Ao criar ou excluir um cluster, você deve fornecer um arquivo de configuração JSON. Ao adicionar uma licença de nó, você deve fornecer um arquivo de licença válido.
+* Utilize um módulo de suporte comum O módulo de suporte comum _deploy_requests.py_ contém uma única classe. Ele é importado e utilizado por cada um dos scripts.
+
+
+
+
+[[create-a-cluster]]
+== Criar um cluster
+
+Você pode criar um cluster ONTAP Select usando o script cluster.py. Com base nos parâmetros da CLI e no conteúdo do arquivo JSON de entrada, você pode modificar o script para o seu ambiente de implantação da seguinte forma:
+
+* Hipervisor Você pode implantar no ESXi ou no KVM (dependendo da versão do Deploy). Ao implantar no ESXi, o hipervisor pode ser gerenciado pelo vCenter ou pode ser um host independente.
+* Tamanho do cluster Você pode implantar um cluster de nó único ou de vários nós.
+* Licença de avaliação ou de produção Você pode implantar um cluster com uma licença de avaliação ou com uma licença adquirida para produção.
+
+
+Os parâmetros de entrada da CLI para o script incluem:
+
+* Nome do host ou endereço IP do servidor de Deploy
+* Senha da conta de usuário admin
+* Nome do arquivo de configuração JSON
+* Sinalizador detalhado para saída de mensagens
+
+
+
+
+[[add-a-node-license]]
+== Adicionar uma licença de nó
+
+Se optar por implementar um cluster de produção, você deve adicionar uma licença para cada nó usando o script _add_license.py_. Você pode adicionar a licença antes ou depois de implementar o cluster.
+
+Os parâmetros de entrada da CLI para o script incluem:
+
+* Nome do host ou endereço IP do servidor de Deploy
+* Senha da conta de usuário admin
+* Nome do arquivo de licença
+* Nome de usuário ONTAP com privilégios para adicionar a licença
+* Senha para o usuário ONTAP
+
+
+
+
+[[delete-a-cluster]]
+== Excluir um cluster
+
+Você pode excluir um cluster ONTAP Select existente usando o script _delete_cluster.py_.
+
+Os parâmetros de entrada da CLI para o script incluem:
+
+* Nome do host ou endereço IP do servidor de Deploy
+* Senha da conta de usuário admin
+* Nome do arquivo de configuração JSON
+

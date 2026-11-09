@@ -1,0 +1,159 @@
+---
+sidebar: sidebar 
+permalink: concept_nw_vsphere_vswitch_config.html 
+keywords: ontap select, standard and distributed vSwitch configurations, vSwitch configuration and load-balancing policies 
+summary: ONTAP Select vSwitch configuração e políticas de balanceamento de carga para configurações com duas e quatro NICs. 
+---
+= Configuração do VMware vSphere vSwitch do ONTAP Select no ESXi
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP Select vSwitch configuração e políticas de balanceamento de carga para configurações com duas e quatro NICs.
+
+ONTAP Select suporta o uso de configurações padrão e distribuídas de vSwitch. As vSwitches distribuídas suportam construções de agregação de links (LACP). A agregação de links é uma construção de rede comum usada para agregar largura de banda de agregado entre vários adaptadores físicos. O LACP é um padrão independente de fornecedor. Ele fornece um protocolo aberto para endpoints de rede que agrupam portas de rede físicas em um único canal lógico. ONTAP Select pode funcionar com grupos de portas configurados como um Grupo de Agregação de Links (LAG). No entanto, a NetApp recomenda o uso das portas físicas individuais como portas de uplink (trunk) simples para evitar a configuração de LAG. Nesses casos, as melhores práticas para vSwitches padrão e distribuídas são idênticas.
+
+Esta seção descreve a configuração do vSwitch e as políticas de balanceamento de carga que devem ser usadas em configurações com duas e quatro NICs.
+
+Ao configurar os grupos de portas para ONTAP Select, siga estas práticas recomendadas; a política de balanceamento de carga no nível do grupo de portas é Route Based on Originating Virtual Port ID. A VMware recomenda que o STP seja configurado como Portfast nas portas do switch conectadas aos hosts ESXi.
+
+Todas as configurações de vSwitch exigem um mínimo de dois adaptadores de rede físicos agrupados em uma única equipe de NIC. ONTAP Select suporta um único link de 10Gb para clusters de dois nós. No entanto, a NetApp recomenda o uso de agregação de NIC para garantir redundância de hardware.
+
+Em um servidor vSphere, os grupos de NICs são a estrutura de agregação usada para agrupar vários adaptadores de rede físicos em um único canal lógico, permitindo que a carga da rede seja compartilhada entre todas as portas membros. É importante lembrar que os grupos de NICs podem ser criados sem suporte do switch físico. Políticas de balanceamento de carga e failover podem ser aplicadas diretamente a um grupo de NICs, que desconhece a configuração do switch upstream. Nesse caso, as políticas são aplicadas apenas ao tráfego de saída.
+
+
+NOTE: Canais de porta estáticos não são suportados com ONTAP Select. Canais habilitados para LACP são suportados com vSwitches distribuídos, mas o uso de LAGs LACP pode resultar em distribuição de carga desigual entre os membros do LAG.
+
+Para clusters de nó único, ONTAP Deploy configura a ONTAP Select VM para usar um grupo de portas para a rede externa e o mesmo grupo de portas ou, opcionalmente, um grupo de portas diferente para o tráfego de gerenciamento do cluster e do nó. Para clusters de nó único, você pode adicionar o número desejado de portas físicas ao grupo de portas externas como adaptadores ativos.
+
+Para clusters com vários nós, ONTAP Deploy configura cada ONTAP Select VM para usar um ou dois grupos de portas para a rede interna e, separadamente, um ou dois grupos de portas para a rede externa. O tráfego de gerenciamento do cluster e do nó pode usar o mesmo grupo de portas que o tráfego externo ou, opcionalmente, um grupo de portas separado. O tráfego de gerenciamento do cluster e do nó não pode compartilhar o mesmo grupo de portas com o tráfego interno.
+
+
+NOTE: ONTAP Select suporta um máximo de quatro VMNICs.
+
+
+
+[[standard-or-distributed-vswitch-and-four-physical-ports-per-node]]
+== Padrão ou distribuído vSwitch e quatro portas físicas por nó
+
+Você pode atribuir quatro grupos de portas a cada nó em um cluster com vários nós. Cada grupo de portas possui uma única porta física ativa e três portas físicas em espera, como na figura a seguir.
+
+*vSwitch com quatro portas físicas por nó*
+
+image:DDN_08.jpg["vSwitch com quatro portas físicas por nó"]
+
+A ordem das portas na lista de espera é importante. A tabela a seguir fornece um exemplo da distribuição física das portas entre os quatro grupos de portas.
+
+*Configurações mínimas e recomendadas da rede*
+
+[cols="5*"]
+|===
+| Grupo de Portas | Externo 1 | Externo 2 | Interno 1 | Interno 2 
+
+
+| Ativo | vmnic0 | vmnic1 | vmnic2 | vmnic3 
+
+
+| Em espera 1 | vmnic1 | vmnic0 | vmnic3 | vmnic2 
+
+
+| Em espera 2 | vmnic2 | vmnic3 | vmnic0 | vmnic1 
+
+
+| Em espera 3 | vmnic3 | vmnic2 | vmnic1 | vmnic0 
+|===
+As figuras a seguir mostram as configurações dos grupos de portas de rede externa na interface do usuário do vCenter (ONTAP-External e ONTAP-External2). Observe que os adaptadores ativos são de placas de rede diferentes. Nesta configuração, vmnic 4 e vmnic 5 são portas duplas na mesma placa de rede física, enquanto vmnic 6 e vmnic 7 são portas duplas semelhantes em uma placa de rede separada (vmnics 0 a 3 não são usadas neste exemplo). A ordem dos adaptadores em espera proporciona um failover hierárquico, com as portas da rede interna sendo as últimas. A ordem das portas internas na lista de espera é invertida de forma semelhante entre os dois grupos de portas externas.
+
+*Parte 1: Configurações de grupo de portas externas do ONTAP Select*
+
+image:DDN_09.jpg["Parte 1: configurações de grupo de portas externas do ONTAP Select"]
+
+*Parte 2: Configurações de grupo de portas externas do ONTAP Select*
+
+image:DDN_10.jpg["Parte 2: configurações de grupo de portas externas do ONTAP Select"]
+
+Para facilitar a leitura, as atribuições são as seguintes:
+
+[cols="2*"]
+|===
+| ONTAP-External | ONTAP-External2 
+
+
+| Adaptadores ativos: vmnic5 Adaptadores em espera: vmnic7, vmnic4, vmnic6 | Adaptadores ativos: vmnic7 Adaptadores em espera: vmnic5, vmnic6, vmnic4 
+|===
+As figuras a seguir mostram as configurações dos grupos de portas de rede interna (ONTAP-Internal e ONTAP-Internal2). Observe que os adaptadores ativos são de placas de rede diferentes. Nesta configuração, vmnic 4 e vmnic 5 são portas duplas no mesmo ASIC físico, enquanto vmnic 6 e vmnic 7 são portas duplas semelhantes em um ASIC separado. A ordem dos adaptadores em espera proporciona um failover hierárquico, com as portas da rede externa sendo as últimas. A ordem das portas externas na lista de espera é invertida de forma semelhante entre os dois grupos de portas internas.
+
+*Parte 1: Configurações de grupo de portas internas do ONTAP Select*
+
+image:DDN_11.jpg["Parte 1: configurações de grupo de portas internas do ONTAP Select"]
+
+*Parte 2: ONTAP Select grupos de portas internas*
+
+image:DDN_12.jpg["Parte 2: ONTAP Select grupos de portas internas"]
+
+Para facilitar a leitura, as atribuições são as seguintes:
+
+[cols="2*"]
+|===
+| ONTAP-Internal | ONTAP-Internal2 
+
+
+| Adaptadores ativos: vmnic4 Adaptadores em espera: vmnic6, vmnic5, vmnic7 | Adaptadores ativos: vmnic6 Adaptadores em espera: vmnic4, vmnic7, vmnic5 
+|===
+
+
+[[standard-or-distributed-vswitch-and-two-physical-ports-per-node]]
+== Padrão ou distribuído vSwitch e duas portas físicas por nó
+
+Ao usar duas placas de rede de alta velocidade (25/40Gb), a configuração recomendada para os grupos de portas é conceitualmente muito semelhante à configuração com quatro adaptadores de 10Gb. Você deve usar quatro grupos de portas mesmo quando estiver usando apenas dois adaptadores físicos. As atribuições dos grupos de portas são as seguintes:
+
+[cols="5*"]
+|===
+| Grupo de Portas | Externo 1 (e0a,e0b) | Interno 1 (e0c,e0e) | Interno 2 (e0d,e0f) | Externo 2 (e0g) 
+
+
+| Ativo | vmnic0 | vmnic0 | vmnic1 | vmnic1 
+
+
+| Espera | vmnic1 | vmnic1 | vmnic0 | vmnic0 
+|===
+*vSwitch com duas portas físicas de alta velocidade (25/40Gb) por nó*
+
+image:DDN_17.jpg["vSwitch com duas portas físicas de alta velocidade (25/40Gb) por nó"]
+
+Ao usar duas portas físicas (10Gb ou menos), cada grupo de portas deve ter um adaptador ativo e um adaptador em espera configurados em posições opostas. A rede interna está presente apenas para clusters ONTAP Select com vários nós. Para clusters de nó único, ambos os adaptadores podem ser configurados como ativos no grupo de portas externas.
+
+O exemplo a seguir mostra a configuração de um vSwitch e dos dois grupos de portas responsáveis por gerenciar os serviços de comunicação interna e externa para um cluster de vários nós do ONTAP Select. A rede externa pode usar a VMNIC da rede interna em caso de interrupção de rede porque as VMNICs da rede interna fazem parte desse grupo de portas e estão configuradas em modo de espera. O oposto ocorre com a rede interna. Alternar as VMNICs ativas e em espera entre os dois grupos de portas é fundamental para o failover correto das VMs do ONTAP Select durante interrupções de rede.
+
+*vSwitch com duas portas físicas (10Gb ou menos) por nó*
+
+image:DDN_13.jpg["vSwitch com duas portas físicas por nó"]
+
+
+
+[[distributed-vswitch-with-lacp]]
+== Distribuído vSwitch com LACP
+
+Ao usar vSwitches distribuídos em sua configuração, o LACP pode ser usado (embora não seja uma prática recomendada) para simplificar a configuração da rede. A única configuração de LACP compatível exige que todas as VMNICs estejam em um único LAG. O switch físico de uplink deve suportar um tamanho de MTU entre 7.500 e 9.000 em todas as portas do canal. As redes interna e externa do ONTAP Select devem ser isoladas no nível do grupo de portas. A rede interna deve usar uma VLAN não roteável (isolada). A rede externa pode usar VST, EST ou VGT.
+
+Os exemplos a seguir mostram a configuração distribuída do vSwitch usando LACP.
+
+*Propriedades de LAG ao usar LACP*
+
+image:DDN_14.jpg["Propriedades LAG ao usar LACP"]
+
+*Configurações de grupo de portas externas usando um vSwitch distribuído com LACP habilitado*
+
+image:DDN_15.jpg["Configurações de grupo de portas externas usando um vSwitch distribuído com LACP habilitado"]
+
+*Configurações de grupo de portas internas usando um vSwitch distribuído com LACP habilitado*
+
+image:DDN_16.jpg["Configurações de grupo de portas internas usando um vSwitch distribuído com LACP habilitado"]
+
+
+NOTE: O LACP exige que você configure as portas do switch upstream como um canal de porta. Antes de habilitar essa configuração no distributed vSwitch, certifique-se de que um canal de porta com LACP habilitado esteja configurado corretamente.

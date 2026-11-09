@@ -1,0 +1,35 @@
+---
+sidebar: sidebar 
+permalink: task_api_access_doc_page.html 
+keywords: rest api, deploy rest api, rest, deploy documentation, access, accessing 
+summary: Você precisa acessar a página de documentação online do ONTAP Select Deploy para visualizar a documentação da API, bem como para emitir uma chamada de API manualmente. 
+---
+= Acesse a página de documentação do ONTAP Select Deploy
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+Você precisa acessar a página de documentação online do ONTAP Select Deploy para visualizar a documentação da API, bem como para emitir uma chamada de API manualmente.
+
+.Antes de começar
+Você precisa ter o seguinte:
+
+* Endereço IP ou nome de domínio da máquina virtual ONTAP Select
+* Nome de usuário e senha do administrador
+
+
+.Passos
+. Digite o URL no seu navegador e selecione *Enter*:
++
+`\https://<ip_address>/api/ui`
+
+. Faça login usando o nome de usuário e a senha do administrador.
+
+
+.Resultado
+A página web de documentação do Deploy é exibida com as chamadas organizadas por categoria na parte inferior da página.
